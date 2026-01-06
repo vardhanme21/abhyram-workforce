@@ -1,0 +1,4 @@
+Found 1 failures:
+[PermissionSet] Workforce_Admin_Access: Error parsing file: Element objectPermissions is duplicated at this location in type PermissionSet
+  File: permissionsets/Workforce_Admin_Access.permissionset
+----------------------------------------

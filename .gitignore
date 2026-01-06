@@ -1,0 +1,26 @@
+# SFDX
+.sfdx
+.sf
+.local_dev_server
+server.key
+server.crt
+
+# Next.js
+node_modules
+.next
+.DS_Store
+*.env
+*.env.local
+.vercel
+
+# VS Code
+.vscode
+
+# Python
+__pycache__
+*.pyc
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
