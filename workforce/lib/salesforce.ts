@@ -7,8 +7,14 @@ import jsforce from 'jsforce';
  * Uses Username/Password flow with Security Token for server-to-server connection.
  */
 export async function getSalesforceConnection() {
+  const loginUrl = process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL || 'https://login.salesforce.com';
+  
   const conn = new jsforce.Connection({
-    loginUrl: process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL || 'https://login.salesforce.com'
+    oauth2: {
+      loginUrl: loginUrl,
+      clientId: process.env.SALESFORCE_CLIENT_ID || '',
+      clientSecret: process.env.SALESFORCE_CLIENT_SECRET || ''
+    }
   });
 
   const username = process.env.SALESFORCE_USERNAME;
@@ -19,7 +25,7 @@ export async function getSalesforceConnection() {
     throw new Error('Salesforce credentials (username, password, token) are missing from environment variables.');
   }
 
-  // Use password + security token for authentication
+  // When oauth2 is provided in the constructor, conn.login uses the OAuth2 Password Grant flow (REST)
   await conn.login(username, password + token);
   
   return conn;
