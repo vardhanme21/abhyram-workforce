@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/Button"
 import { EntryCell } from "./EntryCell"
 import { StatusBadge } from "./StatusBadge"
-import { Plus, Copy, Info } from "lucide-react"
+import { Plus, Info, Trash2, ChevronLeft, ChevronRight, Save, Send } from "lucide-react"
+import { toast } from "sonner"
 
 // Mock Data Types
 type TimesheetEntry = {
@@ -30,30 +31,36 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
 export function WeeklyCalendar() {
   const [status, setStatus] = React.useState<"Draft" | "Submitted">("Draft")
+  const [currentWeekStart, setCurrentWeekStart] = React.useState(startOfWeek(new Date(), { weekStartsOn: 1 }))
   
   // Mock Data
-  const projects: Project[] = [
+  const ALL_PROJECTS: Project[] = [
     { id: "p1", name: "Client Portal", code: "CP-001", color: "bg-blue-500", billable: true },
     { id: "p2", name: "Internal Dashboard", code: "ID-002", color: "bg-teal-500", billable: false },
     { id: "p3", name: "Training", code: "TR-003", color: "bg-orange-500", billable: false },
+    { id: "p4", name: "Security Audit", code: "SA-104", color: "bg-red-500", billable: true },
+    { id: "p5", name: "Documentation", code: "DOC-99", color: "bg-gray-500", billable: false },
   ]
 
+  const [visibleProjectIds, setVisibleProjectIds] = React.useState<string[]>(["p1", "p2", "p3"])
+  const projects = ALL_PROJECTS.filter(p => visibleProjectIds.includes(p.id))
+
   const [entries, setEntries] = React.useState<TimesheetEntry[]>([
-    { id: "e1", projectId: "p1", date: format(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 0), "yyyy-MM-dd"), hours: 8 },
-    { id: "e2", projectId: "p1", date: format(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 1), "yyyy-MM-dd"), hours: 8 },
-    { id: "e3", projectId: "p2", date: format(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 2), "yyyy-MM-dd"), hours: 4 },
+    { id: "e1", projectId: "p1", date: format(addDays(currentWeekStart, 0), "yyyy-MM-dd"), hours: 8 },
+    { id: "e2", projectId: "p1", date: format(addDays(currentWeekStart, 1), "yyyy-MM-dd"), hours: 8 },
+    { id: "e3", projectId: "p2", date: format(addDays(currentWeekStart, 2), "yyyy-MM-dd"), hours: 4 },
   ])
 
   // Helper to get hours
   const getHours = (projectId: string, dayIndex: number) => {
-    const targetDate = format(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), dayIndex), "yyyy-MM-dd")
+    const targetDate = format(addDays(currentWeekStart, dayIndex), "yyyy-MM-dd")
     const entry = entries.find(e => e.projectId === projectId && e.date === targetDate)
     return entry ? entry.hours : 0
   }
 
   // Helper to set hours
   const setHours = (projectId: string, dayIndex: number, hours: number) => {
-    const targetDate = format(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), dayIndex), "yyyy-MM-dd")
+    const targetDate = format(addDays(currentWeekStart, dayIndex), "yyyy-MM-dd")
     setEntries(prev => {
       const existing = prev.find(e => e.projectId === projectId && e.date === targetDate)
       if (hours === 0 && existing) {
@@ -66,9 +73,44 @@ export function WeeklyCalendar() {
     })
   }
 
+  const handleAddProject = () => {
+    const nextProject = ALL_PROJECTS.find(p => !visibleProjectIds.includes(p.id))
+    if (nextProject) {
+      setVisibleProjectIds([...visibleProjectIds, nextProject.id])
+      toast.success(`Project added: ${nextProject.name}`)
+    } else {
+      toast.error("No more projects available to add")
+    }
+  }
+
+  const handleRemoveProject = (id: string) => {
+    setVisibleProjectIds(visibleProjectIds.filter(pid => pid !== id))
+    setEntries(entries.filter(e => e.projectId !== id))
+    toast.info("Project removed from view")
+  }
+
+  const handleSave = () => {
+    toast.promise(new Promise(res => setTimeout(res, 800)), {
+      loading: 'Saving draft...',
+      success: 'Changes saved locally',
+      error: 'Error saving'
+    })
+  }
+
+  const handleSubmit = () => {
+    setStatus("Submitted")
+    toast.success("Timesheet submitted for approval!", {
+      description: `Week of ${format(currentWeekStart, "MMM d")} - ${totalHours} hrs`,
+    })
+  }
+
+  const handleNavigateWeek = (direction: number) => {
+    setCurrentWeekStart(prev => addDays(prev, direction * 7))
+  }
+
   // Calculate totals
   const dailyTotals = Array.from({ length: 7 }).map((_, i) => {
-    const date = format(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), i), "yyyy-MM-dd")
+    const date = format(addDays(currentWeekStart, i), "yyyy-MM-dd")
     return entries
         .filter(e => e.date === date)
         .reduce((sum, e) => sum + e.hours, 0)
@@ -110,11 +152,13 @@ export function WeeklyCalendar() {
       <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-gray-100/50">
         <div className="space-y-1">
           <CardTitle className="text-xl flex items-center gap-3">
-            Timesheet
+            Timesheet Summary
             <StatusBadge status={status} />
           </CardTitle>
-          <CardDescription>
-            Week of {format(startOfWeek(new Date(), { weekStartsOn: 1 }), "MMM d")} - {format(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 6), "MMM d, yyyy")}
+          <CardDescription className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleNavigateWeek(-1)}><ChevronLeft className="w-4 h-4" /></Button>
+            Week of {format(currentWeekStart, "MMM d")} - {format(addDays(currentWeekStart, 6), "MMM d, yyyy")}
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleNavigateWeek(1)}><ChevronRight className="w-4 h-4" /></Button>
           </CardDescription>
         </div>
         <div className="flex items-center gap-3">
@@ -122,11 +166,11 @@ export function WeeklyCalendar() {
              <div className="text-sm text-gray-500">Total Hours</div>
              <div className="text-2xl font-bold text-primary-600">{totalHours} <span className="text-sm font-normal text-gray-400">/ 40</span></div>
            </div>
-           <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2">
-             <Copy className="h-4 w-4" /> Copy Last Week
+           <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2" onClick={handleSave} disabled={status !== "Draft"}>
+             <Save className="h-4 w-4" /> Save Draft
            </Button>
-             <Button onClick={() => setStatus("Submitted")} disabled={status !== "Draft" || totalHours === 0}>
-             Submit
+           <Button onClick={handleSubmit} disabled={status !== "Draft" || totalHours === 0} className="bg-primary-700 hover:bg-primary-800">
+             <Send className="h-4 w-4 mr-2" /> Submit
            </Button>
         </div>
       </CardHeader>
@@ -140,7 +184,7 @@ export function WeeklyCalendar() {
               <div key={day} className="p-4 text-center border-l border-gray-100">
                 <div className="text-xs font-semibold text-gray-500 mb-1">{day}</div>
                 <div className="text-lg font-light text-primary-700">
-                  {format(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), i), "d")}
+                  {format(addDays(currentWeekStart, i), "d")}
                 </div>
               </div>
             ))}
@@ -159,8 +203,17 @@ export function WeeklyCalendar() {
                   <div className="text-xs text-gray-400 font-mono">{project.code}</div>
                 </div>
                 {project.billable && (
-                   <div className="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full">$$</div>
+                   <div className="text-[10px] text-teal-600 font-bold bg-teal-50 px-2 py-0.5 rounded-full border border-teal-100">BILLABLE</div>
                 )}
+                <Button 
+                   variant="ghost" 
+                   size="icon" 
+                   className="h-8 w-8 text-gray-300 opacity-0 group-hover:opacity-100 hover:text-error transition-all ml-auto"
+                   onClick={() => handleRemoveProject(project.id)}
+                   disabled={status !== "Draft"}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
               
               {DAYS.map((_, i) => (
@@ -181,8 +234,13 @@ export function WeeklyCalendar() {
 
           {/* Add Project Row */}
           <div className="p-4 border-b border-dashed border-gray-200 bg-gray-50/20">
-            <Button variant="ghost" className="text-accent-600 hover:text-accent-700 hover:bg-accent-50 text-sm pl-2">
-              <Plus className="w-4 h-4 mr-2" /> Add Project
+            <Button 
+              variant="ghost" 
+              className="text-accent-600 hover:text-accent-700 hover:bg-accent-50 text-sm pl-2 font-semibold"
+              onClick={handleAddProject}
+              disabled={status !== "Draft"}
+            >
+              <Plus className="w-4 h-4 mr-2" /> Add Project Row
             </Button>
           </div>
 
