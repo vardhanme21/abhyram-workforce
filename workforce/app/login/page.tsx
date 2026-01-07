@@ -43,7 +43,7 @@ export default function LoginPage() {
               <Button 
                 onClick={() => {
                   const email = (document.getElementById('email') as HTMLInputElement).value;
-                  if (email) signIn('credentials', { email, callbackUrl: '/' });
+                  if (email) signIn('credentials', { email, callbackUrl: '/dashboard' });
                 }}
                 size="lg" 
                 className="w-full text-base py-6 shadow-lg shadow-accent-500/20 group relative overflow-hidden mt-2"
@@ -66,7 +66,7 @@ export default function LoginPage() {
 
             <Button 
               variant="outline"
-              onClick={() => signIn('salesforce', { callbackUrl: '/' })}
+              onClick={() => signIn('salesforce', { callbackUrl: '/dashboard' })}
               className="w-full border-gray-200 hover:bg-gray-50 text-gray-600"
             >
               <Cloud className="w-4 h-4 mr-2 text-blue-400" />
