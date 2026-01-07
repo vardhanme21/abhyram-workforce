@@ -54,8 +54,9 @@ export default function LoginPage() {
         toast.success("Identity verified! Redirecting...");
         window.location.href = "/dashboard";
       }
-    } catch {
-      toast.error("Authentication failed.");
+    } catch (error) {
+      console.error("[AUTH_ERROR]", error);
+      toast.error("Authentication failed. Check your connection or see console for details.");
       setLoading(false);
     }
   };

@@ -50,10 +50,18 @@ export function WeeklyCalendar() {
           // Initially show all fetched projects
           setVisibleProjectIds(data.map((p: Project) => p.id))
         } else {
-          toast.error("Using mock projects as Salesforce connection is pending.")
+          try {
+            const errData = await res.json();
+            const errMsg = errData.error || "Unknown Error";
+            toast.error(`Salesforce Error (${res.status}): ${errMsg}`);
+          } catch {
+            toast.error(`Connection Error (${res.status}): Access Denied or Server Down`);
+          }
+          
+          // Fallback placeholders for UI demo
           setAllProjects([
-            { id: "p1", name: "Client Portal", code: "CP-001", color: "bg-blue-500", billable: true },
-            { id: "p2", name: "Internal Dashboard", code: "ID-002", color: "bg-teal-500", billable: false },
+            { id: "p1", name: "Client Portal (MOCK)", code: "CP-001", color: "bg-blue-500", billable: true },
+            { id: "p2", name: "Internal Dashboard (MOCK)", code: "ID-002", color: "bg-teal-500", billable: false },
           ])
           setVisibleProjectIds(["p1", "p2"])
         }
