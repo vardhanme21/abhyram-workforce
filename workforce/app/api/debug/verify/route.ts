@@ -7,7 +7,7 @@ export async function GET() {
   const diagnostics: Record<string, any> = {
     timestamp: new Date().toISOString(),
     env: {
-      NEXTAUTH_URL: process.env.NEXTAUTH_URL ? '✅ Present' : '❌ Missing',
+      NEXTAUTH_URL: process.env.NEXTAUTH_URL || '❌ Missing',
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? '✅ Present' : '❌ Missing',
       SALESFORCE_USERNAME: process.env.SALESFORCE_USERNAME ? '✅ Present' : '❌ Missing',
       SALESFORCE_PASSWORD: process.env.SALESFORCE_PASSWORD ? '✅ Present' : '❌ Missing',
@@ -16,6 +16,7 @@ export async function GET() {
       SALESFORCE_CLIENT_ID: process.env.SALESFORCE_CLIENT_ID ? '✅ Present' : '❌ Missing',
       SALESFORCE_CLIENT_SECRET: process.env.SALESFORCE_CLIENT_SECRET ? '✅ Present' : '❌ Missing',
       SALESFORCE_LOGIN_URL: process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL || 'https://login.salesforce.com',
+      NEXT_PUBLIC_REDIRECT_URI: process.env.NEXT_PUBLIC_REDIRECT_URI || '❌ Missing',
     },
     auth_link_step_1: process.env.SALESFORCE_CLIENT_ID ? 
       `${process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL || 'https://login.salesforce.com'}/services/oauth2/authorize?response_type=code&client_id=${process.env.SALESFORCE_CLIENT_ID}&redirect_uri=${encodeURIComponent((process.env.NEXT_PUBLIC_REDIRECT_URI || `${process.env.NEXTAUTH_URL}/api/auth/callback/salesforce`).replace('http://localhost:3000', process.env.NEXTAUTH_URL || ''))}&scope=api%20refresh_token%20offline_access` : 

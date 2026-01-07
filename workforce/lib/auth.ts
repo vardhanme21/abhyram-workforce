@@ -32,8 +32,12 @@ export const authOptions: NextAuthOptions = {
     SalesforceProvider({
       clientId: process.env.SALESFORCE_CLIENT_ID || "",
       clientSecret: process.env.SALESFORCE_CLIENT_SECRET || "",
-      issuer: process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL,
-      authorization: { params: { scope: 'openid api refresh_token web' } },
+      authorization: {
+        url: `${process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL}/services/oauth2/authorize`,
+        params: { scope: 'openid api refresh_token web' }
+      },
+      token: `${process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL}/services/oauth2/token`,
+      userinfo: `${process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL}/services/oauth2/userinfo`,
       profile(profile) {
         return {
           id: profile.user_id,
