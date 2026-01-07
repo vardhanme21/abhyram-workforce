@@ -32,8 +32,7 @@ export const authOptions: NextAuthOptions = {
     SalesforceProvider({
       clientId: process.env.SALESFORCE_CLIENT_ID || "",
       clientSecret: process.env.SALESFORCE_CLIENT_SECRET || "",
-      idToken: true,
-      wellKnown: `${process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL}/.well-known/openid-configuration`,
+      issuer: process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL,
       authorization: { params: { scope: 'openid api refresh_token web' } },
       profile(profile) {
         return {
