@@ -30,13 +30,25 @@ const handler = NextAuth({
     }),
   ],
   // Add debug logging to help with deployment troubleshooting
-  debug: process.env.NODE_ENV === 'development',
+  debug: true,
+  logger: {
+    error(code, metadata) {
+      console.error('NEXTAUTH_ERROR', code, metadata)
+    },
+    warn(code) {
+      console.warn('NEXTAUTH_WARN', code)
+    },
+    debug(code, metadata) {
+      console.log('NEXTAUTH_DEBUG', code, metadata)
+    }
+  },
   callbacks: {
     async session({ session, token }) {
-      // Pass the Salesforce Access Token to the client if needed for API calls
+      console.log('SESSION_CALLBACK', { hasToken: !!token });
       return { ...session, accessToken: token.accessToken };
     },
-    async jwt({ token, account }) {
+    async jwt({ token, account, profile }) {
+      console.log('JWT_CALLBACK', { hasAccount: !!account, hasProfile: !!profile });
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
