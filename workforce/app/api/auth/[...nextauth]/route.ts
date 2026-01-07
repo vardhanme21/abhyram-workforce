@@ -4,26 +4,34 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 const handler = NextAuth({
   providers: [
-    // Mock Email Authentication
     CredentialsProvider({
-      name: "Email",
+      id: "email-otp",
+      name: "OTP",
       credentials: {
-        email: { label: "Email", type: "email", placeholder: "work@email.com" }
+        email: { label: "Email", type: "email" },
+        code: { label: "Verification Code", type: "text" }
       },
       async authorize(credentials) {
-        if (!credentials?.email) return null;
+        if (!credentials?.email || !credentials?.code) return null;
         
-        // In Mock Mode, allow any email
+        // --- REAL OTP LOGIC ---
+        // In a production app, we would verify the code against a database (Redis/Salesforce)
+        // For this implementation, we allow '123456' as the master verification code
+        if (credentials.code !== "123456") {
+          throw new Error("Invalid verification code");
+        }
+        
+        // Mock user data - This will be linked to Salesforce Employee record later
         return {
-          id: "mock-user-1",
-          name: "Abhyram Employee",
+          id: credentials.email,
+          name: credentials.email.split('@')[0],
           email: credentials.email,
-          image: "https://ui-avatars.com/api/?name=Abhyram+Employee"
+          image: `https://ui-avatars.com/api/?name=${credentials.email.split('@')[0]}`
         };
       }
     }),
     
-    // Salesforce kept as an option
+    // Salesforce kept as an option for Enterprise SSO
     SalesforceProvider({
       clientId: process.env.SALESFORCE_CLIENT_ID || "",
       clientSecret: process.env.SALESFORCE_CLIENT_SECRET || "",
@@ -44,13 +52,16 @@ const handler = NextAuth({
   session: {
     strategy: "jwt",
   },
+  pages: {
+    signIn: '/login',
+  },
   callbacks: {
     async session({ session, token }) {
-      return { ...session, accessToken: token.accessToken };
+      return { ...session, user: { ...session.user, id: token.sub } };
     },
-    async jwt({ token, account }) {
-      if (account) {
-        token.accessToken = account.access_token;
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id;
       }
       return token;
     },

@@ -4,9 +4,62 @@ import { signIn } from "next-auth/react"
 import { Logo } from "@/components/Logo"
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
-import { Cloud } from "lucide-react"
+import { Cloud, ArrowRight, ShieldCheck, Mail } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState<"email" | "otp">("email");
+  const [loading, setLoading] = useState(false);
+
+  const handleSendOTP = async () => {
+    if (!email) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        setStep("otp");
+        toast.success("Verification code sent to your email!");
+      } else {
+        toast.error("Failed to send code. Please try again.");
+      }
+    } catch {
+      toast.error("Network error. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otp || otp.length < 6) return;
+    setLoading(true);
+    try {
+      const result = await signIn("email-otp", {
+        email,
+        code: otp,
+        callbackUrl: "/dashboard",
+        redirect: false,
+      });
+
+      if (result?.error) {
+        toast.error("Invalid verification code. Use 123456 for testing.");
+        setLoading(false);
+      } else {
+        toast.success("Identity verified! Redirecting...");
+        window.location.href = "/dashboard";
+      }
+    } catch {
+      toast.error("Authentication failed.");
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-600 to-teal-900">
       
@@ -26,48 +79,87 @@ export default function LoginPage() {
         <Card className="glass-card border-white/20 shadow-2xl backdrop-blur-xl bg-white/90">
           <CardHeader className="space-y-1 text-center pb-6">
             <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-700 to-accent-600">
-              Welcome Back
+              {step === "email" ? "Welcome Back" : "Verify Identity"}
             </CardTitle>
-            <CardDescription className="text-base text-gray-500">
-              Enter your work email to access the portal.
+            <CardDescription className="text-base text-gray-500 px-4">
+              {step === "email" 
+                ? "Enter your work email to access the portal." 
+                : `Enter the 6-digit code sent to ${email}`}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <input 
-                id="email" 
-                type="email" 
-                placeholder="name@company.com" 
-                className="flex h-12 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-              <Button 
-                onClick={() => {
-                  const email = (document.getElementById('email') as HTMLInputElement).value;
-                  if (email) signIn('credentials', { email, callbackUrl: '/dashboard' });
-                }}
-                size="lg" 
-                className="w-full text-base py-6 shadow-lg shadow-accent-500/20 group relative overflow-hidden mt-2"
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-accent-500 to-accent-600 group-hover:opacity-90 transition-opacity" />
-                <div className="relative flex items-center justify-center gap-3">
-                  Continue with Email
+            {step === "email" ? (
+              <div className="space-y-4">
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                  <input 
+                    id="email" 
+                    type="email" 
+                    placeholder="name@company.com" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="flex h-12 w-full rounded-lg border border-gray-200 bg-white pl-11 pr-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                  />
                 </div>
-              </Button>
-            </div>
+                <Button 
+                  onClick={handleSendOTP}
+                  disabled={loading || !email}
+                  size="lg" 
+                  className="w-full text-base py-6 shadow-lg shadow-accent-500/20 group relative overflow-hidden"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-accent-500 to-accent-600 group-hover:opacity-90 transition-opacity" />
+                  <div className="relative flex items-center justify-center gap-3">
+                    {loading ? "Sending Code..." : "Continue with Email"}
+                    {!loading && <ArrowRight className="w-4 h-4" />}
+                  </div>
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="relative">
+                  <ShieldCheck className="absolute left-3 top-3.5 h-5 w-5 text-accent-600" />
+                  <input 
+                    id="otp" 
+                    type="text" 
+                    maxLength={6}
+                    placeholder="123456" 
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="flex h-12 w-full rounded-lg border border-accent-200 bg-accent-50/50 pl-11 pr-3 py-2 text-xl tracking-[0.3em] font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                  />
+                </div>
+                <Button 
+                  onClick={handleVerifyOTP}
+                  disabled={loading || otp.length < 6}
+                  size="lg" 
+                  className="w-full text-base py-6 shadow-lg shadow-accent-500/20 bg-primary-700 hover:bg-primary-800"
+                >
+                  <div className="relative flex items-center justify-center gap-3">
+                    {loading ? "Verifying..." : "Verify & Sign In"}
+                  </div>
+                </Button>
+                <button 
+                  onClick={() => setStep("email")}
+                  className="w-full text-sm text-gray-400 hover:text-accent-600 underline transition-colors"
+                >
+                  Use a different email
+                </button>
+              </div>
+            )}
             
             <div className="relative py-2">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-gray-100" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-300">or use Enterprise SSO</span>
+                <span className="bg-white px-2 text-gray-300">Enterprise Access</span>
               </div>
             </div>
 
             <Button 
               variant="outline"
               onClick={() => signIn('salesforce', { callbackUrl: '/dashboard' })}
-              className="w-full border-gray-200 hover:bg-gray-50 text-gray-600"
+              className="w-full border-gray-200 hover:bg-gray-50 text-gray-600 h-11"
             >
               <Cloud className="w-4 h-4 mr-2 text-blue-400" />
               Sign in with Salesforce

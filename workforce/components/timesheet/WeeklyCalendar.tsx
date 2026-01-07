@@ -89,23 +89,46 @@ export function WeeklyCalendar() {
     toast.info("Project removed from view")
   }
 
-  const handleSave = () => {
-    toast.promise(new Promise(res => setTimeout(res, 800)), {
-      loading: 'Saving draft...',
-      success: 'Changes saved locally',
-      error: 'Error saving'
-    })
-  }
+  const handleSync = async (newStatus: "Draft" | "Submitted") => {
+    const promise = async () => {
+      const res = await fetch("/api/timesheets/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          weekStart: format(currentWeekStart, "yyyy-MM-dd"),
+          status: newStatus,
+          entries: entries.map(e => ({
+            projectId: e.projectId, // In a real app, this would be the SF Project__c Record ID
+            date: e.date,
+            hours: e.hours
+          }))
+        })
+      });
 
-  const handleSubmit = () => {
-    setStatus("Submitted")
-    toast.success("Timesheet submitted for approval!", {
-      description: `Week of ${format(currentWeekStart, "MMM d")} - ${totalHours} hrs`,
-    })
-  }
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to sync with Salesforce");
+      }
+
+      return await res.json();
+    };
+
+    toast.promise(promise(), {
+      loading: newStatus === "Submitted" ? "Submitting to Salesforce..." : "Syncing to Salesforce...",
+      success: () => {
+        if (newStatus === "Submitted") setStatus("Submitted");
+        return newStatus === "Submitted" ? "Submitted for approval!" : "Saved to Salesforce";
+      },
+      error: (err) => err.message
+    });
+  };
+
+  const handleSave = () => handleSync("Draft");
+  const handleSubmit = () => handleSync("Submitted");
 
   const handleNavigateWeek = (direction: number) => {
     setCurrentWeekStart(prev => addDays(prev, direction * 7))
+    setStatus("Draft") // Reset status for the new week view
   }
 
   // Calculate totals
