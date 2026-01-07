@@ -1,17 +1,26 @@
 'use client';
 
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Logo } from "@/components/Logo"
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Cloud, ArrowRight, ShieldCheck, Mail } from "lucide-react"
 import { useState, useEffect, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 
 function LoginContent() {
+  const { status } = useSession();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const errorParam = searchParams.get("error");
+
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status, router]);
   
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
