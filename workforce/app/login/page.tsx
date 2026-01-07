@@ -5,11 +5,11 @@ import { Logo } from "@/components/Logo"
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Cloud, ArrowRight, ShieldCheck, Mail } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const errorParam = searchParams.get("error");
   
@@ -196,5 +196,17 @@ export default function LoginPage() {
         © 2024 Abhyram IT Solutions. All rights reserved.
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-primary-700">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }
