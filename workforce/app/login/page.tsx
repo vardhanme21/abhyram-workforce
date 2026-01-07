@@ -5,14 +5,31 @@ import { Logo } from "@/components/Logo"
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Cloud, ArrowRight, ShieldCheck, Mail } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const errorParam = searchParams.get("error");
+  
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"email" | "otp">("email");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (errorParam) {
+      console.error("[OAUTH_ERROR]", errorParam);
+      if (errorParam === "OAuthSignin") {
+        toast.error("Salesforce connection error (Discovery failed). check your Client ID and Login URL.");
+      } else if (errorParam === "OAuthCallback") {
+        toast.error("Authentication failed during callback. Check your Client Secret and Redirect URI.");
+      } else {
+        toast.error(`Authentication error: ${errorParam}`);
+      }
+    }
+  }, [errorParam]);
 
   const handleSendOTP = async () => {
     if (!email) return;
