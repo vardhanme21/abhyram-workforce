@@ -18,7 +18,7 @@ export async function GET() {
       SALESFORCE_LOGIN_URL: process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL || 'https://login.salesforce.com',
     },
     auth_link_step_1: process.env.SALESFORCE_CLIENT_ID ? 
-      `https://login.salesforce.com/services/oauth2/authorize?response_type=code&client_id=${process.env.SALESFORCE_CLIENT_ID}&redirect_uri=${encodeURIComponent((process.env.NEXT_PUBLIC_REDIRECT_URI || `${process.env.NEXTAUTH_URL}/api/auth/callback/salesforce`).replace('http://localhost:3000', process.env.NEXTAUTH_URL || ''))}&scope=api%20refresh_token%20offline_access` : 
+      `${process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL || 'https://login.salesforce.com'}/services/oauth2/authorize?response_type=code&client_id=${process.env.SALESFORCE_CLIENT_ID}&redirect_uri=${encodeURIComponent((process.env.NEXT_PUBLIC_REDIRECT_URI || `${process.env.NEXTAUTH_URL}/api/auth/callback/salesforce`).replace('http://localhost:3000', process.env.NEXTAUTH_URL || ''))}&scope=api%20refresh_token%20offline_access` : 
       '❌ Cannot generate link (Client ID missing)',
     session: null,
     salesforce_test: 'Not Started'
