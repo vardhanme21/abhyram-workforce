@@ -7,7 +7,7 @@ import jsforce from 'jsforce';
  * Uses Username/Password flow with Security Token for server-to-server connection.
  */
 export async function getSalesforceConnection() {
-  const authUrl = 'https://login.salesforce.com';
+  const authUrl = process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL || 'https://login.salesforce.com';
   
   const connData: any = {
     oauth2: {
