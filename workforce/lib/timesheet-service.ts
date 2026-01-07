@@ -14,26 +14,51 @@ export interface TimesheetSyncData {
 
 export class TimesheetService {
   /**
+   * Fetches all active projects from Salesforce
+   */
+  static async getProjects() {
+    const conn = await getSalesforceConnection();
+    const projects = await conn.sobject('Project__c').find({
+      Status__c: 'Active'
+    });
+    
+    return projects.map((p: any) => ({
+      id: p.Id,
+      name: p.Name,
+      code: p.Project_Code__c || 'N/A',
+      billable: p.Billable__c || false,
+      color: p.Color_Code__c || 'bg-blue-500' // Assuming you might add a color field
+    }));
+  }
+
+  /**
    * Syncs a week worth of timesheet entries to Salesforce
    */
   static async syncWeek(data: TimesheetSyncData) {
     const conn = await getSalesforceConnection();
 
-    // 1. Get Employee ID by Email
-    const employee = await conn.sobject('Employee__c').findOne({ Email__c: data.email });
+    // 1. Get or Create Employee ID by Email
+    let employee = await conn.sobject('Employee__c').findOne({ Email__c: data.email });
+    
     if (!employee) {
-      throw new Error(`No employee record found for email: ${data.email}`);
+      console.log(`[SYNC] Employee record not found for ${data.email}. Creating one...`);
+      const result: any = await conn.sobject('Employee__c').create({
+        Full_Name__c: data.email.split('@')[0],
+        Email__c: data.email,
+        Status__c: 'Active'
+      });
+      employee = { Id: result.id };
     }
 
     // 2. Find or Create the Header (Timesheet__c)
     // A header usually represents one employee for one week
     let timesheet = await conn.sobject('Timesheet__c').findOne({
-      Employee__c: employee.Id,
+      Employee__c: (employee as any).Id,
       Start_Date__c: data.weekStart
     });
 
     const timesheetData = {
-      Employee__c: employee.Id,
+      Employee__c: (employee as any).Id,
       Start_Date__c: data.weekStart,
       Status__c: data.status === 'Submitted' ? 'Submitted' : 'Draft',
       Total_Hours__c: data.entries.reduce((sum, e) => sum + e.hours, 0)

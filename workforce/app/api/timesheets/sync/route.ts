@@ -20,9 +20,11 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(result);
-  } catch {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to sync with Salesforce';
+    console.error('[SYNC_ERROR]', error);
     return NextResponse.json({ 
-      error: 'Failed to sync with Salesforce' 
+      error: message
     }, { status: 500 });
   }
 }

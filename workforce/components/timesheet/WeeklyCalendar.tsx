@@ -33,17 +33,38 @@ export function WeeklyCalendar() {
   const [status, setStatus] = React.useState<"Draft" | "Submitted">("Draft")
   const [currentWeekStart, setCurrentWeekStart] = React.useState(startOfWeek(new Date(), { weekStartsOn: 1 }))
   
-  // Mock Data
-  const ALL_PROJECTS: Project[] = [
-    { id: "p1", name: "Client Portal", code: "CP-001", color: "bg-blue-500", billable: true },
-    { id: "p2", name: "Internal Dashboard", code: "ID-002", color: "bg-teal-500", billable: false },
-    { id: "p3", name: "Training", code: "TR-003", color: "bg-orange-500", billable: false },
-    { id: "p4", name: "Security Audit", code: "SA-104", color: "bg-red-500", billable: true },
-    { id: "p5", name: "Documentation", code: "DOC-99", color: "bg-gray-500", billable: false },
-  ]
+  const [allProjects, setAllProjects] = React.useState<Project[]>([])
+  const [visibleProjectIds, setVisibleProjectIds] = React.useState<string[]>([])
+  const [loading, setLoading] = React.useState(true)
 
-  const [visibleProjectIds, setVisibleProjectIds] = React.useState<string[]>(["p1", "p2", "p3"])
-  const projects = ALL_PROJECTS.filter(p => visibleProjectIds.includes(p.id))
+  const projects = allProjects.filter(p => visibleProjectIds.includes(p.id))
+
+  // Fetch real projects from Salesforce on mount
+  React.useEffect(() => {
+    async function loadProjects() {
+      try {
+        const res = await fetch("/api/projects")
+        if (res.ok) {
+          const data = await res.json()
+          setAllProjects(data)
+          // Initially show all fetched projects
+          setVisibleProjectIds(data.map((p: Project) => p.id))
+        } else {
+          toast.error("Using mock projects as Salesforce connection is pending.")
+          setAllProjects([
+            { id: "p1", name: "Client Portal", code: "CP-001", color: "bg-blue-500", billable: true },
+            { id: "p2", name: "Internal Dashboard", code: "ID-002", color: "bg-teal-500", billable: false },
+          ])
+          setVisibleProjectIds(["p1", "p2"])
+        }
+      } catch {
+        toast.error("Network error loading projects.")
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadProjects()
+  }, [])
 
   const [entries, setEntries] = React.useState<TimesheetEntry[]>([
     { id: "e1", projectId: "p1", date: format(addDays(currentWeekStart, 0), "yyyy-MM-dd"), hours: 8 },
@@ -74,7 +95,7 @@ export function WeeklyCalendar() {
   }
 
   const handleAddProject = () => {
-    const nextProject = ALL_PROJECTS.find(p => !visibleProjectIds.includes(p.id))
+    const nextProject = allProjects.find((p: Project) => !visibleProjectIds.includes(p.id))
     if (nextProject) {
       setVisibleProjectIds([...visibleProjectIds, nextProject.id])
       toast.success(`Project added: ${nextProject.name}`)
@@ -119,7 +140,10 @@ export function WeeklyCalendar() {
         if (newStatus === "Submitted") setStatus("Submitted");
         return newStatus === "Submitted" ? "Submitted for approval!" : "Saved to Salesforce";
       },
-      error: (err) => err.message
+      error: (err: unknown) => {
+        const error = err as { message?: string };
+        return `${error.message || "Failed to sync"}`;
+      }
     });
   };
 
@@ -146,9 +170,21 @@ export function WeeklyCalendar() {
   const [showSuggestion, setShowSuggestion] = React.useState(true)
 
   const handleApplySuggestion = () => {
-    // Mock applying suggestion: Set Client Portal on Mon to 8h
-    setHours("p1", 0, 8.0)
-    setShowSuggestion(false)
+    if (allProjects.length > 0) {
+      setHours(allProjects[0].id, 0, 8.0)
+      setShowSuggestion(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-24 bg-white rounded-3xl shadow-xl">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-accent-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-500 font-medium animate-pulse">Connecting to Salesforce...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
