@@ -1,8 +1,10 @@
+'use client';
+
+import { signIn } from "next-auth/react"
 import { Logo } from "@/components/Logo"
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Cloud } from "lucide-react"
-import Link from "next/link"
 
 export default function LoginPage() {
   return (
@@ -31,7 +33,11 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button size="lg" className="w-full text-base py-6 shadow-lg shadow-accent-500/20 group relative overflow-hidden">
+            <Button 
+              onClick={() => signIn('salesforce', { callbackUrl: '/' })}
+              size="lg" 
+              className="w-full text-base py-6 shadow-lg shadow-accent-500/20 group relative overflow-hidden"
+            >
               <span className="absolute inset-0 bg-gradient-to-r from-accent-500 to-accent-600 group-hover:opacity-90 transition-opacity" />
               <div className="relative flex items-center justify-center gap-3">
                 <Cloud className="w-5 h-5 fill-white/20" />
