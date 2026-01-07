@@ -7,45 +7,56 @@ import jsforce from 'jsforce';
  * Uses Username/Password flow with Security Token for server-to-server connection.
  */
 export async function getSalesforceConnection() {
-  const authUrl = process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL || 'https://login.salesforce.com';
-  
-  const connData: any = {
-    oauth2: {
-      loginUrl: authUrl,
-      clientId: process.env.SALESFORCE_CLIENT_ID || '',
-      clientSecret: process.env.SALESFORCE_CLIENT_SECRET || ''
-    }
-  };
+  const loginUrl = process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL || 'https://login.salesforce.com';
+  const clientId = process.env.SALESFORCE_CLIENT_ID;
+  const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
 
-  // If we have a refresh token, use it! This is more reliable than password flow.
-  if (process.env.SALESFORCE_REFRESH_TOKEN) {
-    connData.refreshToken = process.env.SALESFORCE_REFRESH_TOKEN;
+  if (!clientId || !clientSecret) {
+    throw new Error('SALESFORCE_CLIENT_ID or SALESFORCE_CLIENT_SECRET is missing. Please set them in Vercel.');
   }
 
-  const conn = new jsforce.Connection(connData);
+  // 1. Fetch Access Token via Zero-Handshake Client Credentials Flow
+  // This is the simplest modern method: No passwords, no refresh tokens, no codes.
+  try {
+    const tokenRes = await fetch(`${loginUrl}/services/oauth2/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret
+      } as any)
+    });
 
-  // If no refresh token, try Legacy Password Grant (might be disabled in Org)
-  if (!process.env.SALESFORCE_REFRESH_TOKEN) {
-    const username = process.env.SALESFORCE_USERNAME;
-    const password = process.env.SALESFORCE_PASSWORD;
-    const token = process.env.SALESFORCE_SECURITY_TOKEN;
+    const tokenData: any = await tokenRes.json();
 
-    if (!username || !password || !token) {
-      throw new Error('Salesforce credentials missing from environment variables (No Refresh Token or Password found).');
+    if (tokenData.error) {
+       // Fallback for older Orgs or misconfigured apps: Try Password/Refresh if they exist
+       console.warn('[SF_CLIENT_CRED_FAILED]', tokenData.error_description);
+       
+       if (process.env.SALESFORCE_REFRESH_TOKEN) {
+         const conn = new jsforce.Connection({
+           oauth2: { loginUrl, clientId, clientSecret },
+           refreshToken: process.env.SALESFORCE_REFRESH_TOKEN
+         });
+         return conn;
+       }
+       
+       throw new Error(`Salesforce Connection Error: ${tokenData.error_description || tokenData.error}. Ensure "Enable Client Credentials Flow" is checked in your Salesforce Connected App settings.`);
     }
 
-    try {
-      await conn.login(username, password + token);
-    } catch (err: any) {
-      console.error('[SALESFORCE_AUTH_CRITICAL]', err);
-      if (err.message === 'authentication failure') {
-        throw new Error('Salesforce Authentication Failure: Password flow is likely disabled. Please use SALESFORCE_REFRESH_TOKEN instead.');
-      }
-      throw err;
-    }
+    // 2. Initialize jsforce with the obtained token
+    const conn = new jsforce.Connection({
+      instanceUrl: tokenData.instance_url,
+      accessToken: tokenData.access_token,
+      version: '59.0'
+    });
+
+    return conn;
+  } catch (err: any) {
+    console.error('[SALESFORCE_CONNECT_ERROR]', err);
+    throw err;
   }
-  
-  return conn;
 }
 
 /**

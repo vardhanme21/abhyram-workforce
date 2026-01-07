@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import jsforce from 'jsforce';
+import { getSalesforceConnection } from '@/lib/salesforce';
 
 export async function GET(request: NextRequest) {
   const diagnostics: Record<string, any> = {
@@ -37,26 +37,17 @@ export async function GET(request: NextRequest) {
       }
     } : { status: '❌ Not Found (Unauthorized)' };
 
-    // Test Salesforce Connection in isolation
-    if (process.env.SALESFORCE_USERNAME && process.env.SALESFORCE_PASSWORD) {
-      try {
-        const conn = new jsforce.Connection({
-          oauth2: {
-            loginUrl: diagnostics.env.SALESFORCE_LOGIN_URL,
-            clientId: process.env.SALESFORCE_CLIENT_ID || '',
-            clientSecret: process.env.SALESFORCE_CLIENT_SECRET || ''
-          }
-        });
-        await conn.login(
-          process.env.SALESFORCE_USERNAME, 
-          (process.env.SALESFORCE_PASSWORD || '') + (process.env.SALESFORCE_SECURITY_TOKEN || '')
-        );
-        diagnostics.salesforce_test = '✅ Successful (REST/OAuth2)';
-      } catch (sfErr) {
-        diagnostics.salesforce_test = `❌ Failed: ${sfErr instanceof Error ? sfErr.message : String(sfErr)}`;
+    // Test Salesforce Connection via getSalesforceConnection (Unified Test)
+    try {
+      const conn = await getSalesforceConnection();
+      const identity: any = await conn.identity();
+      diagnostics.salesforce_test = `✅ Successful (Connected as: ${identity.username})`;
+    } catch (sfErr: any) {
+      diagnostics.salesforce_test = `❌ Failed: ${sfErr instanceof Error ? sfErr.message : String(sfErr)}`;
+      
+      if (sfErr.message?.includes('unsupported_grant_type')) {
+        diagnostics.salesforce_test += ' | 💡 FIX: Check "Enable Client Credentials Flow" in your Connected App settings.';
       }
-    } else {
-      diagnostics.salesforce_test = '⚠️ Skipped (Credentials missing)';
     }
 
     return NextResponse.json(diagnostics);
