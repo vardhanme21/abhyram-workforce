@@ -24,35 +24,54 @@ export default function LoginPage() {
         </div>
 
         <Card className="glass-card border-white/20 shadow-2xl backdrop-blur-xl bg-white/90">
-          <CardHeader className="space-y-1 text-center pb-8">
+          <CardHeader className="space-y-1 text-center pb-6">
             <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-700 to-accent-600">
               Welcome Back
             </CardTitle>
             <CardDescription className="text-base text-gray-500">
-              Clarity on Time. Control on Cost.
+              Enter your work email to access the portal.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button 
-              onClick={() => signIn('salesforce', { callbackUrl: '/' })}
-              size="lg" 
-              className="w-full text-base py-6 shadow-lg shadow-accent-500/20 group relative overflow-hidden"
-            >
-              <span className="absolute inset-0 bg-gradient-to-r from-accent-500 to-accent-600 group-hover:opacity-90 transition-opacity" />
-              <div className="relative flex items-center justify-center gap-3">
-                <Cloud className="w-5 h-5 fill-white/20" />
-                Sign in with Salesforce
-              </div>
-            </Button>
+            <div className="space-y-2">
+              <input 
+                id="email" 
+                type="email" 
+                placeholder="name@company.com" 
+                className="flex h-12 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+              <Button 
+                onClick={() => {
+                  const email = (document.getElementById('email') as HTMLInputElement).value;
+                  if (email) signIn('credentials', { email, callbackUrl: '/' });
+                }}
+                size="lg" 
+                className="w-full text-base py-6 shadow-lg shadow-accent-500/20 group relative overflow-hidden mt-2"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-accent-500 to-accent-600 group-hover:opacity-90 transition-opacity" />
+                <div className="relative flex items-center justify-center gap-3">
+                  Continue with Email
+                </div>
+              </Button>
+            </div>
             
-            <div className="relative">
+            <div className="relative py-2">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-gray-200" />
+                <span className="w-full border-t border-gray-100" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-400">Secure Access</span>
+                <span className="bg-white px-2 text-gray-300">or use Enterprise SSO</span>
               </div>
             </div>
+
+            <Button 
+              variant="outline"
+              onClick={() => signIn('salesforce', { callbackUrl: '/' })}
+              className="w-full border-gray-200 hover:bg-gray-50 text-gray-600"
+            >
+              <Cloud className="w-4 h-4 mr-2 text-blue-400" />
+              Sign in with Salesforce
+            </Button>
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-xs text-center text-gray-400">

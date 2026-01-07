@@ -1,24 +1,35 @@
 import NextAuth from "next-auth"
 import SalesforceProvider from "next-auth/providers/salesforce";
+import CredentialsProvider from "next-auth/providers/credentials";
 
 const handler = NextAuth({
   providers: [
+    // Mock Email Authentication
+    CredentialsProvider({
+      name: "Email",
+      credentials: {
+        email: { label: "Email", type: "email", placeholder: "work@email.com" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email) return null;
+        
+        // In Mock Mode, allow any email
+        return {
+          id: "mock-user-1",
+          name: "Abhyram Employee",
+          email: credentials.email,
+          image: "https://ui-avatars.com/api/?name=Abhyram+Employee"
+        };
+      }
+    }),
+    
+    // Salesforce kept as an option
     SalesforceProvider({
       clientId: process.env.SALESFORCE_CLIENT_ID || "",
       clientSecret: process.env.SALESFORCE_CLIENT_SECRET || "",
       idToken: true,
       wellKnown: `${process.env.NEXT_PUBLIC_SALESFORCE_LOGIN_URL}/.well-known/openid-configuration`,
-      authorization: {
-        params: {
-          scope: 'openid api refresh_token web'
-        }
-      },
-      userinfo: {
-        async request({ client, tokens }) {
-          // Get user info from Salesforce UserInfo endpoint
-          return await client.userinfo(tokens.access_token!);
-        },
-      },
+      authorization: { params: { scope: 'openid api refresh_token web' } },
       profile(profile) {
         return {
           id: profile.user_id,
@@ -29,29 +40,17 @@ const handler = NextAuth({
       },
     }),
   ],
-  // Add debug logging to help with deployment troubleshooting
   debug: true,
-  logger: {
-    error(code, metadata) {
-      console.error('NEXTAUTH_ERROR', code, metadata)
-    },
-    warn(code) {
-      console.warn('NEXTAUTH_WARN', code)
-    },
-    debug(code, metadata) {
-      console.log('NEXTAUTH_DEBUG', code, metadata)
-    }
+  session: {
+    strategy: "jwt",
   },
   callbacks: {
     async session({ session, token }) {
-      console.log('SESSION_CALLBACK', { hasToken: !!token });
       return { ...session, accessToken: token.accessToken };
     },
-    async jwt({ token, account, profile }) {
-      console.log('JWT_CALLBACK', { hasAccount: !!account, hasProfile: !!profile });
+    async jwt({ token, account }) {
       if (account) {
         token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
       }
       return token;
     },
