@@ -44,51 +44,26 @@
     --color-error: #ef4444;
     --color-info: #3b82f6;
   }
-}
 
-@layer base {
-  /* Ensure all text is readable with proper contrast */
   body {
-    @apply bg-gray-50 text-gray-900;
+    background-color: #f9fafb;
+    color: #111827;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* Force text visibility on all elements */
-  h1, h2, h3, h4, h5, h6 {
-    @apply text-gray-900 font-bold;
-  }
-
-  p, span, div {
-    @apply text-gray-700;
-  }
-
-  /* Ensure button text is always visible */
-  button {
-    @apply font-medium;
-  }
-
-  /* Links should be clearly visible */
-  a {
-    @apply text-primary-600 hover:text-primary-700;
   }
 }
 
 @layer utilities {
   .glass-card {
-    @apply bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg;
-  }
-
-  .animate-slide-in {
-    animation: slideIn 0.3s ease-out forwards;
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   }
 
   .shadow-card-hover {
-    @apply shadow-xl shadow-primary-100/50 transition-shadow duration-300;
+    box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1);
+    transition: box-shadow 0.3s ease;
   }
 }
 
@@ -112,6 +87,14 @@
   }
 }
 
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -119,13 +102,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+  background-color: #f3f4f6;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+  background-color: #d1d5db;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400;
+  background-color: #9ca3af;
 }
