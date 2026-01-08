@@ -61,8 +61,25 @@ export async function getSalesforceConnection() {
 
     return conn;
   } catch (err: unknown) {
-    console.error('[SALESFORCE_CONNECT_ERROR]', err);
-    throw err;
+    console.warn('[SF_CLIENT_CRED_FAILED] trying Username/Password flow...', err);
+
+    // 3. Fallback: Username/Password Flow (Most reliable for backend services)
+    const username = process.env.SALESFORCE_USERNAME;
+    const password = process.env.SALESFORCE_PASSWORD;
+    const securityToken = process.env.SALESFORCE_SECURITY_TOKEN || '';
+
+    if (username && password) {
+      try {
+        const conn = new jsforce.Connection({ loginUrl });
+        await conn.login(username, password + securityToken);
+        return conn;
+      } catch (loginErr) {
+        console.error('[SF_LOGIN_FAILED]', loginErr);
+        throw new Error(`Salesforce Login Failed: ${(loginErr as Error).message}`);
+      }
+    }
+
+    throw new Error('All Salesforce connection methods failed. Please check CLIENT_ID/SECRET or USERNAME/PASSWORD in Vercel.');
   }
 }
 
