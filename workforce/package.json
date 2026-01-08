@@ -15,7 +15,7 @@
     "date-fns": "^4.1.0",
     "dexie": "^4.2.1",
     "dexie-react-hooks": "^4.2.0",
-    "framer-motion": "^12.24.7",
+    "framer-motion": "^12.24.11",
     "jsforce": "^3.10.10",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",

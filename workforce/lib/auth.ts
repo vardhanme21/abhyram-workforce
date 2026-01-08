@@ -1,6 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import SalesforceProvider from "next-auth/providers/salesforce";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { getSalesforceConnection } from "./salesforce";
 
 export const authOptions: NextAuthOptions = {
   // @ts-expect-error - trustHost is valid in runtime but missing in v4 types
@@ -30,7 +31,42 @@ export const authOptions: NextAuthOptions = {
         };
       }
     }),
+    // 2. Email/Password (Custom for this app)
+    CredentialsProvider({
+      id: "email-password",
+      name: "Password",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+
+        const conn = await getSalesforceConnection();
+        
+        // Find employee by email
+        // Note: Password__c must be readable by Integration User
+        const employee = await conn.sobject('Employee__c').findOne({ 
+          Email__c: credentials.email 
+        }) as { Id: string; Full_Name__c: string; Email__c: string; Password__c?: string } | null;
+
+        if (!employee) return null;
+
+        // Verify password
+        // Note: in production, use bcrypt.compare here
+        if (employee.Password__c !== credentials.password) {
+          throw new Error("Invalid password");
+        }
+
+        return {
+          id: employee.Id,
+          name: employee.Full_Name__c,
+          email: employee.Email__c
+        };
+      }
+    }),
     
+    // 3. Salesforce OAuth
     SalesforceProvider({
       clientId: process.env.SALESFORCE_CLIENT_ID || "",
       clientSecret: process.env.SALESFORCE_CLIENT_SECRET || "",

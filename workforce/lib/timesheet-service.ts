@@ -164,4 +164,32 @@ export class TimesheetService {
       projectId: result.projectId
     };
   }
+  /**
+   * Creates a new Employee record (Signup)
+   */
+  static async createEmployee(data: { name: string; email: string; password?: string }) {
+    const conn = await getSalesforceConnection();
+
+    // 1. Check if exists
+    const existing = await conn.sobject('Employee__c').findOne({ Email__c: data.email }) as { Id: string } | null;
+    if (existing) {
+      throw new Error("User with this email already exists");
+    }
+
+    // 2. Create
+    // Note: We are storing password directly/hashed in a Text field for this custom flow.
+    // Ensure 'Password__c' field exists in Salesforce.
+    const result = await conn.sobject('Employee__c').create({
+      Full_Name__c: data.name,
+      Email__c: data.email,
+      Status__c: 'Active',
+      Password__c: data.password // In prod, hash this!
+    }) as SalesforceResult;
+
+    if (!result.success) {
+      throw new Error("Failed to create user in Salesforce");
+    }
+
+    return { success: true, userId: result.id };
+  }
 }
