@@ -57,6 +57,7 @@ export class TimesheetService {
     if (!employee) {
       console.log(`[SYNC] Employee record not found for ${data.email}. Creating one...`);
       const result = await conn.sobject('Employee__c').create({
+        Name: data.name || data.email.split('@')[0], // Set Standard Name
         Full_Name__c: data.name || data.email.split('@')[0],
         Email__c: data.email,
         Status__c: 'Active'
@@ -192,6 +193,7 @@ export class TimesheetService {
     // Ensure 'Password__c' field exists in Salesforce.
     try {
       const result = await conn.sobject('Employee__c').create({
+        Name: data.name, // Try to set Standard Name to fix "ID" issue in Lookups
         Full_Name__c: data.name,
         Email__c: data.email,
         Status__c: 'Active',

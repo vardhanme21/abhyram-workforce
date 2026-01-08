@@ -23,6 +23,7 @@ global with sharing class ProjectAPI {
         }
         
         Project__c newProject = new Project__c(
+            Name = projReq.projectName, // Set Standard Name
             Project_Name__c = projReq.projectName,
             Project_Code__c = projReq.projectCode,
             Status__c = projReq.status,
