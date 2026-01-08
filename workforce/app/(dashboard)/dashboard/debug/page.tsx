@@ -13,9 +13,11 @@ export default async function DebugSessionPage() {
       <div className="mt-4">
         <p><strong>Environment Check:</strong></p>
         <ul className="list-disc pl-5">
-          <li>NEXTAUTH_URL: {process.env.NEXTAUTH_URL || 'Not Set'}</li>
+          <li>NEXTAUTH_URL: {process.env.NEXTAUTH_URL ? `Set (${process.env.NEXTAUTH_URL})` : <span className="text-red-600 font-bold">MISSING</span>}</li>
+          <li>NEXTAUTH_SECRET: {process.env.NEXTAUTH_SECRET ? `Set (Length: ${process.env.NEXTAUTH_SECRET.length})` : <span className="text-red-600 font-bold">MISSING</span>}</li>
           <li>NODE_ENV: {process.env.NODE_ENV}</li>
-          <li>Redirect URI Match: {process.env.NEXTAUTH_URL === 'https://abhyram-workforce.vercel.app' ? 'Yes' : 'No'}</li>
+          {/* @ts-expect-error - trustHost valid in runtime */}
+          <li>Trust Host: {authOptions.trustHost ? 'Enabled' : 'Disabled'}</li>
         </ul>
       </div>
     </div>
