@@ -16,9 +16,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error: unknown) {
+    console.error("[SIGNUP_ERROR]", error);
     if (error instanceof Error) {
       return NextResponse.json(
-        { error: error.message },
+        { error: error.message, details: error.stack },
         { status: 500 }
       );
     }

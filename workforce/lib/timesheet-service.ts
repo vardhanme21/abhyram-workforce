@@ -168,28 +168,46 @@ export class TimesheetService {
    * Creates a new Employee record (Signup)
    */
   static async createEmployee(data: { name: string; email: string; password?: string }) {
+    console.log(`[CREATE_EMPLOYEE] Starting for ${data.email}`);
     const conn = await getSalesforceConnection();
 
     // 1. Check if exists
-    const existing = await conn.sobject('Employee__c').findOne({ Email__c: data.email }) as { Id: string } | null;
-    if (existing) {
-      throw new Error("User with this email already exists");
+    try {
+      const existing = await conn.sobject('Employee__c').findOne({ Email__c: data.email }) as { Id: string } | null;
+      if (existing) {
+        console.warn(`[CREATE_EMPLOYEE] User exists: ${existing.Id}`);
+        throw new Error("User with this email already exists");
+      }
+    } catch (err) {
+       console.error(`[CREATE_EMPLOYEE] Check Error`, err);
+       // If the error is "User with this email already exists", rethrow it
+       if ((err as Error).message.includes("exists")) throw err;
+       // Otherwise, it might be a permissions issue
+       throw new Error(`Salesforce Check Failed: ${(err as Error).message}`);
     }
 
     // 2. Create
+    console.log(`[CREATE_EMPLOYEE] Creating record...`);
     // Note: We are storing password directly/hashed in a Text field for this custom flow.
     // Ensure 'Password__c' field exists in Salesforce.
-    const result = await conn.sobject('Employee__c').create({
-      Full_Name__c: data.name,
-      Email__c: data.email,
-      Status__c: 'Active',
-      Password__c: data.password // In prod, hash this!
-    }) as SalesforceResult;
+    try {
+      const result = await conn.sobject('Employee__c').create({
+        Full_Name__c: data.name,
+        Email__c: data.email,
+        Status__c: 'Active',
+        Password__c: data.password // In prod, hash this!
+      }) as SalesforceResult;
 
-    if (!result.success) {
-      throw new Error("Failed to create user in Salesforce");
+      if (!result.success) {
+        console.error(`[CREATE_EMPLOYEE] Create Failed`, result.errors);
+        throw new Error("Failed to create user in Salesforce (API Error)");
+      }
+
+      console.log(`[CREATE_EMPLOYEE] Success: ${result.id}`);
+      return { success: true, userId: result.id };
+    } catch (err) {
+      console.error(`[CREATE_EMPLOYEE] Create Exception`, err);
+      throw new Error(`Salesforce Create Failed: ${(err as Error).message}`);
     }
-
-    return { success: true, userId: result.id };
   }
 }
