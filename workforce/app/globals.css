@@ -2,28 +2,40 @@
 
 @layer base {
   :root {
-    /* Primary - Deep Navy */
-    --color-primary-50: #f0f4f8;
-    --color-primary-100: #d9e2ec;
-    --color-primary-500: #1e3a5f;
-    --color-primary-600: #152a47;
-    --color-primary-700: #0d1b2a;
+    /* Primary - Professional Blue */
+    --color-primary-50: #eff6ff;
+    --color-primary-100: #dbeafe;
+    --color-primary-200: #bfdbfe;
+    --color-primary-300: #93c5fd;
+    --color-primary-400: #60a5fa;
+    --color-primary-500: #3b82f6;
+    --color-primary-600: #2563eb;
+    --color-primary-700: #1d4ed8;
+    --color-primary-800: #1e40af;
+    --color-primary-900: #1e3a8a;
 
-    /* Accent - Electric Blue */
-    --color-accent-400: #3b82f6;
-    --color-accent-500: #2563eb;
-    --color-accent-600: #1d4ed8;
-
-    /* Teal Accent */
-    --color-teal-400: #14b8a6;
-    --color-teal-500: #0d9488;
+    /* Accent - Vibrant Teal */
+    --color-accent-50: #f0fdfa;
+    --color-accent-100: #ccfbf1;
+    --color-accent-200: #99f6e4;
+    --color-accent-300: #5eead4;
+    --color-accent-400: #2dd4bf;
+    --color-accent-500: #14b8a6;
+    --color-accent-600: #0d9488;
+    --color-accent-700: #0f766e;
+    --color-accent-800: #115e59;
+    --color-accent-900: #134e4a;
 
     /* Neutrals */
     --color-gray-50: #f9fafb;
     --color-gray-100: #f3f4f6;
     --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
+    --color-gray-400: #9ca3af;
     --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
     --color-gray-700: #374151;
+    --color-gray-800: #1f2937;
     --color-gray-900: #111827;
 
     /* Status Colors */
@@ -34,24 +46,56 @@
   }
 }
 
+@layer base {
+  /* Ensure all text is readable with proper contrast */
+  body {
+    @apply bg-gray-50 text-gray-900;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Force text visibility on all elements */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-gray-900 font-bold;
+  }
+
+  p, span, div {
+    @apply text-gray-700;
+  }
+
+  /* Ensure button text is always visible */
+  button {
+    @apply font-medium;
+  }
+
+  /* Links should be clearly visible */
+  a {
+    @apply text-primary-600 hover:text-primary-700;
+  }
+}
+
 @layer utilities {
   .glass-card {
-    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
+    @apply bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg;
   }
 
   .animate-slide-in {
-    animation: slideIn 0.5s ease-out forwards;
+    animation: slideIn 0.3s ease-out forwards;
   }
 
   .animate-fade-in {
     animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  .shadow-card-hover {
+    @apply shadow-xl shadow-primary-100/50 transition-shadow duration-300;
   }
 }
 
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;
@@ -68,6 +112,20 @@
   }
 }
 
-body {
-  @apply bg-[var(--color-primary-50)] text-[var(--color-gray-900)];
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
 }
