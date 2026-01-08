@@ -4,8 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { getSalesforceConnection } from "@/lib/salesforce";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { User, Mail, Briefcase, Calendar, Hash, DollarSign, Users, Building2 } from "lucide-react";
-import { Input } from "@/components/ui/Input"; 
+import { User, Mail, Briefcase, Calendar, Hash, DollarSign, Users, Building2 } from "lucide-react"; 
 // Note: We are using Input for display-only to match the "Form" look of the design, using readOnly prop.
 
 export default async function ProfilePage() {
