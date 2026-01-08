@@ -66,10 +66,14 @@ export class TimesheetService {
 
     // 2. Find or Create the Header (Timesheet__c)
     // A header usually represents one employee for one week
-    // Note: jsforce handles YYYY-MM-DD strings correctly for date fields
+    // Note: jsforce requires a JavaScript Date object for date fields in queries
+    // Parse YYYY-MM-DD string to Date object
+    const [year, month, day] = data.weekStart.split('-').map(Number);
+    const weekStartDate = new Date(Date.UTC(year, month - 1, day));
+    
     let timesheet = await conn.sobject('Timesheet__c').findOne({
       Employee__c: employee.Id,
-      Week_Start_Date__c: data.weekStart // Keep as YYYY-MM-DD string
+      Week_Start_Date__c: weekStartDate
     }) as { Id: string } | null;
 
     const timesheetData = {
