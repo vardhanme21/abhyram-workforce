@@ -268,12 +268,12 @@ export class TimesheetService {
         Email__c: data.email,
         Status__c: data.status || 'Active',
         Password__c: data.password, // In prod, hash this!
-        Employee_ID__c: data.employeeId,
-        Department__c: data.department,
-        Manager__c: data.manager, // Text field for now, or ID if passed
-        Hire_Date__c: data.hireDate,
-        Role__c: data.role,
-        Cost_Rate__c: data.costRate
+        Employee_ID__c: data.employeeId || null,
+        Department__c: data.department || null,
+        Manager__c: data.manager || null, // Text field for now, or ID if passed
+        Hire_Date__c: data.hireDate ? data.hireDate : null,
+        Role__c: data.role || null,
+        Cost_Rate__c: data.costRate || null
       };
 
       const result = await conn.sobject('Employee__c').create(record) as SalesforceResult;
