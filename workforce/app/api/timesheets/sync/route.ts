@@ -18,6 +18,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     
     const result = await TimesheetService.syncWeek({
       email: session.user.email,
+      name: session.user.name || undefined,
       weekStart: data.weekStart,
       entries: data.entries,
       status: data.status

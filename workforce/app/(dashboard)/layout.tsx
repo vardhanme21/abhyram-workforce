@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/Button"
 import { Bell, User, LogOut } from "lucide-react"
 import Link from "next/link"
 import { Toaster } from "sonner"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const { data: session } = useSession()
   return (
     <div className="min-h-screen bg-primary-50">
       <Toaster position="top-right" richColors />
@@ -52,7 +53,7 @@ export default function DashboardLayout({
             
             <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
               <div className="hidden md:block text-right">
-                <p className="text-sm font-bold text-gray-900">Jyoshi</p>
+                <p className="text-sm font-bold text-gray-900">{session?.user?.name || 'User'}</p>
                 <p className="text-[10px] uppercase font-bold tracking-widest text-teal-600">Admin</p>
               </div>
               <Button 

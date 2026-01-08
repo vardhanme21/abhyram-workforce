@@ -48,16 +48,16 @@ export class TimesheetService {
   /**
    * Syncs a week worth of timesheet entries to Salesforce
    */
-  static async syncWeek(data: TimesheetSyncData) {
+  static async syncWeek(data: TimesheetSyncData & { name?: string }) {
     const conn = await getSalesforceConnection();
 
     // 1. Get or Create Employee ID by Email
-    let employee = await conn.sobject('Employee__c').findOne({ Email__c: data.email }) as { Id: string } | null;
+    let employee = await conn.sobject('Employee__c').findOne({ Email__c: data.email }) as { Id: string; Full_Name__c?: string } | null;
     
     if (!employee) {
       console.log(`[SYNC] Employee record not found for ${data.email}. Creating one...`);
       const result = await conn.sobject('Employee__c').create({
-        Full_Name__c: data.email.split('@')[0],
+        Full_Name__c: data.name || data.email.split('@')[0],
         Email__c: data.email,
         Status__c: 'Active'
       }) as SalesforceResult;
