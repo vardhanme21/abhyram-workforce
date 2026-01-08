@@ -21,21 +21,21 @@ export default function DashboardPage() {
       title: "Create Project",
       description: "Start a new project",
       icon: Plus,
-      href: "/dashboard/projects",
+      href: "/projects",
       color: "bg-teal-500",
     },
     {
       title: "View Reports",
       description: "Check analytics",
       icon: TrendingUp,
-      href: "/dashboard/reports",
+      href: "/reports",
       color: "bg-purple-500",
     },
     {
       title: "Manage Team",
       description: "Review submissions",
       icon: Users,
-      href: "/dashboard/manager",
+      href: "/manager",
       color: "bg-orange-500",
     },
   ]
@@ -54,7 +54,7 @@ export default function DashboardPage() {
           Welcome back, {session?.user?.name || "User"}! 👋
         </h1>
         <p className="text-primary-100 text-lg">
-          Here's what's happening with your workforce today.
+          Here&apos;s what&apos;s happening with your workforce today.
         </p>
       </div>
 

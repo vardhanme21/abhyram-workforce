@@ -4,7 +4,11 @@
         <apexClass>ProjectAPI</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description>Grants access to the ProjectAPI Apex class for creating projects.</description>
+    <classAccesses>
+        <apexClass>TimesheetAPI</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description>Grants access to ProjectAPI and TimesheetAPI Apex classes.</description>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Project API Access</label>
 </PermissionSet>
