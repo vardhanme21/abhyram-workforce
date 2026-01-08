@@ -16,9 +16,19 @@ export default async function DebugSessionPage() {
           <li>NEXTAUTH_URL: {process.env.NEXTAUTH_URL ? `Set (${process.env.NEXTAUTH_URL})` : <span className="text-red-600 font-bold">MISSING</span>}</li>
           <li>NEXTAUTH_SECRET: {process.env.NEXTAUTH_SECRET ? `Set (Length: ${process.env.NEXTAUTH_SECRET.length})` : <span className="text-red-600 font-bold">MISSING</span>}</li>
           <li>NODE_ENV: {process.env.NODE_ENV}</li>
-          {/* @ts-expect-error - trustHost valid in runtime */}
           <li>Trust Host: {authOptions.trustHost ? 'Enabled' : 'Disabled'}</li>
+          <li className="mt-2 text-blue-600 font-semibold">Salesforce Config:</li>
+          <li>CLIENT_ID: {process.env.SALESFORCE_CLIENT_ID ? 'Set' : <span className="text-red-600 font-bold">MISSING</span>}</li>
+          <li>CLIENT_SECRET: {process.env.SALESFORCE_CLIENT_SECRET ? 'Set' : <span className="text-red-600 font-bold">MISSING</span>}</li>
         </ul>
+        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
+          <p className="font-bold text-yellow-800">Troubleshooting Steps:</p>
+          <ol className="list-decimal pl-5 mt-2 text-sm text-yellow-700">
+             <li>If any variables above are <strong>MISSING</strong>, add them in Vercel.</li>
+             <li>If all are <strong>Set</strong>, try clicking "Sign In" again.</li>
+             <li>Watch the URL bar. If it redirects back to login with an error, tell me the error.</li>
+          </ol>
+        </div>
       </div>
     </div>
   );
