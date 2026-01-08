@@ -56,13 +56,15 @@ export default function DashboardLayout({
                 <p className="text-sm font-bold text-gray-900">{session?.user?.name || 'User'}</p>
                 <p className="text-[10px] uppercase font-bold tracking-widest text-teal-600">Admin</p>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-full h-9 w-9 bg-primary-100 text-primary-700 ring-2 ring-white shadow-sm"
-              >
-                <User className="h-4 w-4" />
-              </Button>
+              <Link href="/profile">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="rounded-full h-9 w-9 bg-primary-100 text-primary-700 ring-2 ring-white shadow-sm"
+                >
+                  <User className="h-4 w-4" />
+                </Button>
+              </Link>
               <Button 
                 variant="ghost" 
                 size="icon" 

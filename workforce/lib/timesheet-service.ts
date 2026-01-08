@@ -152,13 +152,28 @@ export class TimesheetService {
       LIMIT 1
     `;
 
-    const result = await conn.query(soql) as { records: any[], totalSize: number };
+    const result = await conn.query(soql) as { records: { 
+         Status__c: 'Draft' | 'Submitted'; 
+         Timesheet_Entries__r?: { records: {
+           Id: string;
+           Project__c: string;
+           Date__c: string;
+           Hours__c: number;
+           Project__r?: { Name: string; Project_Name__c?: string; Project_Code__c?: string };
+         }[] } 
+    }[], totalSize: number };
     if (result.records.length === 0) return null;
 
     const ts = result.records[0];
     
     // Map entries to our frontend format
-    const entries = (ts.Timesheet_Entries__r?.records || []).map((e: any) => ({
+    const entries = (ts.Timesheet_Entries__r?.records || []).map((e: {
+      Id: string;
+      Project__c: string;
+      Date__c: string;
+      Hours__c: number;
+      Project__r?: { Name: string; Project_Name__c?: string; Project_Code__c?: string };
+    }) => ({
       id: e.Id,
       projectId: e.Project__c,
       projectName: e.Project__r?.Name || e.Project__r?.Project_Name__c || 'Unknown Project',

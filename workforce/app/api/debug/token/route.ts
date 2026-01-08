@@ -6,8 +6,8 @@ import jsforce from 'jsforce';
  * 
  * Usage: /api/debug/token?code=YOUR_CODE_FROM_URL
  */
-export async function GET(_request: NextRequest): Promise<NextResponse> {
-  const { searchParams } = new URL(_request.url);
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
 
   if (!code) {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { TimesheetService } from '@/lib/timesheet-service';
+import { TimesheetService, TimesheetSyncData } from '@/lib/timesheet-service';
 import { authOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Unauthorized', debug: 'Session missing' }, { status: 401 });
     }
 
-    const data = await request.json();
+    const data = await request.json() as TimesheetSyncData;
     
     const result = await TimesheetService.syncWeek({
       email: session.user.email,

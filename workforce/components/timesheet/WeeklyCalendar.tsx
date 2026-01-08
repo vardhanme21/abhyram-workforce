@@ -35,9 +35,32 @@ export function WeeklyCalendar() {
   
   const [allProjects, setAllProjects] = React.useState<Project[]>([])
   const [visibleProjectIds, setVisibleProjectIds] = React.useState<string[]>([])
+  const [entries, setEntries] = React.useState<TimesheetEntry[]>([])
   const [loading, setLoading] = React.useState(true)
 
   const projects = allProjects.filter(p => visibleProjectIds.includes(p.id))
+
+  // Helper to get hours
+  const getHours = (projectId: string, dayIndex: number) => {
+    const targetDate = format(addDays(currentWeekStart, dayIndex), "yyyy-MM-dd")
+    const entry = entries.find(e => e.projectId === projectId && e.date === targetDate)
+    return entry ? entry.hours : 0
+  }
+
+  // Helper to set hours
+  const setHours = (projectId: string, dayIndex: number, hours: number) => {
+    const targetDate = format(addDays(currentWeekStart, dayIndex), "yyyy-MM-dd")
+    setEntries(prev => {
+      const existing = prev.find(e => e.projectId === projectId && e.date === targetDate)
+      if (hours === 0 && existing) {
+        return prev.filter(e => e.id !== existing.id) // Remove
+      }
+      if (existing) {
+        return prev.map(e => e.id === existing.id ? { ...e, hours } : e) // Update
+      }
+      return [...prev, { id: Math.random().toString(), projectId, date: targetDate, hours }] // Create
+    })
+  }
 
   // Fetch real projects from Salesforce on mount
   React.useEffect(() => {
@@ -90,7 +113,7 @@ export function WeeklyCalendar() {
             // Transform backend entries to frontend format if needed (though API already matches mostly)
             // Backend sends: { id, projectId, date, hours, ... }
             if (data.entries) {
-               setEntries(data.entries.map((e: any) => ({
+               setEntries(data.entries.map((e: { id: string; projectId: string; date: string; hours: number }) => ({
                  id: e.id,
                  projectId: e.projectId,
                  date: e.date,
@@ -98,7 +121,7 @@ export function WeeklyCalendar() {
                })));
                
                // Also make sure these projects are visible
-               const newProjectIds = data.entries.map((e: any) => e.projectId);
+               const newProjectIds = data.entries.map((e: { projectId: string }) => e.projectId);
                setVisibleProjectIds(prev => Array.from(new Set([...prev, ...newProjectIds])));
             }
           } else {
@@ -120,33 +143,11 @@ export function WeeklyCalendar() {
     }
   }, [currentWeekStart, loading]);
 
-  const projects = allProjects.filter(p => visibleProjectIds.includes(p.id))
+
 
   // ... (Keep handleSync etc.)
 
-  const [entries, setEntries] = React.useState<TimesheetEntry[]>([])
 
-  // Helper to get hours
-  const getHours = (projectId: string, dayIndex: number) => {
-    const targetDate = format(addDays(currentWeekStart, dayIndex), "yyyy-MM-dd")
-    const entry = entries.find(e => e.projectId === projectId && e.date === targetDate)
-    return entry ? entry.hours : 0
-  }
-
-  // Helper to set hours
-  const setHours = (projectId: string, dayIndex: number, hours: number) => {
-    const targetDate = format(addDays(currentWeekStart, dayIndex), "yyyy-MM-dd")
-    setEntries(prev => {
-      const existing = prev.find(e => e.projectId === projectId && e.date === targetDate)
-      if (hours === 0 && existing) {
-        return prev.filter(e => e.id !== existing.id) // Remove
-      }
-      if (existing) {
-        return prev.map(e => e.id === existing.id ? { ...e, hours } : e) // Update
-      }
-      return [...prev, { id: Math.random().toString(), projectId, date: targetDate, hours }] // Create
-    })
-  }
 
   const handleAddProject = () => {
     const nextProject = allProjects.find((p: Project) => !visibleProjectIds.includes(p.id))
