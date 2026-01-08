@@ -7,8 +7,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions);
     
+    console.log('[SYNC_DEBUG] Session:', JSON.stringify(session, null, 2));
+
     if (!session || !session.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      console.error('[SYNC_DEBUG] Unauthorized: Missing session or email');
+      return NextResponse.json({ error: 'Unauthorized', debug: 'Session missing' }, { status: 401 });
     }
 
     const data = await request.json();
