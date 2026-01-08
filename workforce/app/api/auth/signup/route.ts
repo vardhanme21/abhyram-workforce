@@ -3,7 +3,7 @@ import { TimesheetService } from "@/lib/timesheet-service";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email, password, employeeId, department, manager, hireDate, role, costRate, status } = await req.json();
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -12,7 +12,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await TimesheetService.createEmployee({ name, email, password });
+    const result = await TimesheetService.createEmployee({ 
+      name, 
+      email, 
+      password,
+      employeeId,
+      department,
+      manager,
+      hireDate,
+      role,
+      costRate,
+      status
+    });
 
     return NextResponse.json(result);
   } catch (error: unknown) {

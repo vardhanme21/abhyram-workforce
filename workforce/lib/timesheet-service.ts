@@ -227,7 +227,18 @@ export class TimesheetService {
   /**
    * Creates a new Employee record (Signup)
    */
-  static async createEmployee(data: { name: string; email: string; password?: string }) {
+  static async createEmployee(data: { 
+    name: string; 
+    email: string; 
+    password?: string;
+    employeeId?: string;
+    department?: string;
+    manager?: string;
+    hireDate?: string;
+    role?: string;
+    costRate?: number;
+    status?: string;
+  }) {
     console.log(`[CREATE_EMPLOYEE] Starting for ${data.email}`);
     const conn = await getSalesforceConnection();
 
@@ -251,13 +262,21 @@ export class TimesheetService {
     // Note: We are storing password directly/hashed in a Text field for this custom flow.
     // Ensure 'Password__c' field exists in Salesforce.
     try {
-      const result = await conn.sobject('Employee__c').create({
+      const record = {
         Name: data.name, // Try to set Standard Name to fix "ID" issue in Lookups
         Full_Name__c: data.name,
         Email__c: data.email,
-        Status__c: 'Active',
-        Password__c: data.password // In prod, hash this!
-      }) as SalesforceResult;
+        Status__c: data.status || 'Active',
+        Password__c: data.password, // In prod, hash this!
+        Employee_ID__c: data.employeeId,
+        Department__c: data.department,
+        Manager__c: data.manager, // Text field for now, or ID if passed
+        Hire_Date__c: data.hireDate,
+        Role__c: data.role,
+        Cost_Rate__c: data.costRate
+      };
+
+      const result = await conn.sobject('Employee__c').create(record) as SalesforceResult;
 
       if (!result.success) {
         console.error(`[CREATE_EMPLOYEE] Create Failed`, result.errors);

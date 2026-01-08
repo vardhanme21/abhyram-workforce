@@ -4,7 +4,9 @@ import { authOptions } from "@/lib/auth";
 import { getSalesforceConnection } from "@/lib/salesforce";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { User, Mail, Briefcase, Calendar, Hash } from "lucide-react";
+import { User, Mail, Briefcase, Calendar, Hash, DollarSign, Users, Building2 } from "lucide-react";
+import { Input } from "@/components/ui/Input"; 
+// Note: We are using Input for display-only to match the "Form" look of the design, using readOnly prop.
 
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
@@ -18,24 +20,29 @@ export default async function ProfilePage() {
 
   try {
     const conn = await getSalesforceConnection();
-    // Query fields from Employee__c based on schema knowledge or safe assumptions
-    // Assuming fields from previous context: Full_Name__c, Email__c, Status__c
-    // Adding Id for reference.
-    const result = await conn.sobject("Employee__c").findOne({
-      Email__c: session.user.email
-    }, "Id, Full_Name__c, Email__c, Status__c, CreatedDate");
-
-    employee = result;
+    // Fetch all extended fields
+    const query = `
+      SELECT Id, Full_Name__c, Email__c, Status__c, CreatedDate,
+             Employee_ID__c, Department__c, Manager__c, Hire_Date__c, Role__c, Cost_Rate__c, Password__c
+      FROM Employee__c 
+      WHERE Email__c = '${session.user.email}'
+      LIMIT 1
+    `;
+    
+    const result = await conn.query(query);
+    if (result.records.length > 0) {
+        employee = result.records[0];
+    }
   } catch (e) {
     console.error("Failed to fetch employee profile:", e);
     error = "Could not load profile data from Salesforce.";
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-        <p className="text-gray-500 mt-2">Manage your personal information and settings.</p>
+        <p className="text-gray-500 mt-2">Personal details fetched from Salesforce.</p>
       </div>
 
       {error && (
@@ -45,73 +52,102 @@ export default async function ProfilePage() {
       )}
 
       {employee ? (
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <User className="h-5 w-5 text-primary-500" />
-                Personal Details
-              </CardTitle>
+        <Card className="border-t-4 border-t-primary-500 shadow-sm">
+            <CardHeader className="bg-gray-50/50 border-b border-gray-100 pb-4">
+                 <div className="flex items-center justify-between">
+                    <CardTitle className="text-xl flex items-center gap-2 text-primary-800">
+                        <User className="h-5 w-5" />
+                        Employee Information
+                    </CardTitle>
+                    <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border ${employee.Status__c === 'Active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-100 text-gray-600 border-gray-300'}`}>
+                        {employee.Status__c || 'Unknown'}
+                    </div>
+                 </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-500">Full Name</label>
-                <div className="font-medium text-gray-900 mt-1">{employee.Full_Name__c || "N/A"}</div>
-              </div>
-              <div className="flex items-center gap-3 pt-2">
-                <div className="bg-primary-50 p-2 rounded-full">
-                  <Mail className="h-4 w-4 text-primary-600" />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Email</label>
-                  <div className="text-sm font-medium text-gray-900">{employee.Email__c}</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    {/* Left Column */}
+                    <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-500 uppercase">Full Name</label>
+                        <div className="p-2 bg-gray-50 border border-gray-200 rounded-md text-sm font-medium text-gray-900">
+                            {employee.Full_Name__c || session.user.name}
+                        </div>
+                    </div>
 
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Briefcase className="h-5 w-5 text-primary-500" />
-                Employment Info
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-               <div className="flex items-center gap-3">
-                <div className="bg-green-50 p-2 rounded-full">
-                   <div className={`h-2.5 w-2.5 rounded-full ${employee.Status__c === 'Active' ? 'bg-green-500' : 'bg-gray-400'}`} />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</label>
-                  <div className="text-sm font-medium text-gray-900">{employee.Status__c || "Unknown"}</div>
-                </div>
-              </div>
-               
-               <div className="flex items-center gap-3 border-t border-gray-100 pt-4">
-                <div className="bg-gray-50 p-2 rounded-full">
-                  <Calendar className="h-4 w-4 text-gray-600" />
-                </div>
-                <div>
-                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Joined On</label>
-                   <div className="text-sm font-medium text-gray-900">
-                    {employee.CreatedDate ? new Date(employee.CreatedDate).toLocaleDateString() : "N/A"}
-                   </div>
-                </div>
-              </div>
+                    <div className="space-y-1">
+                         <label className="text-xs font-semibold text-gray-500 uppercase">Manager</label>
+                         <div className="p-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-700 flex items-center gap-2">
+                            <Users className="h-3 w-3 text-gray-400" />
+                            {employee.Manager__c || 'N/A'}
+                         </div>
+                    </div>
 
-               <div className="flex items-center gap-3 border-t border-gray-100 pt-4">
-                <div className="bg-gray-50 p-2 rounded-full">
-                  <Hash className="h-4 w-4 text-gray-600" />
+                    <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-500 uppercase">Employee ID</label>
+                        <div className="p-2 bg-gray-50 border border-gray-200 rounded-md text-sm font-mono text-gray-700 flex items-center gap-2">
+                            <Hash className="h-3 w-3 text-gray-400" />
+                            {employee.Employee_ID__c || employee.Id}
+                        </div>
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-500 uppercase">Hire Date</label>
+                         <div className="p-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-700 flex items-center gap-2">
+                             <Calendar className="h-3 w-3 text-gray-400" />
+                             {employee.Hire_Date__c ? new Date(employee.Hire_Date__c).toLocaleDateString() : 'N/A'}
+                         </div>
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-500 uppercase">Department</label>
+                        <div className="p-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-700 flex items-center gap-2">
+                            <Building2 className="h-3 w-3 text-gray-400" />
+                            {employee.Department__c || 'N/A'}
+                        </div>
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-500 uppercase">Role</label>
+                         <div className="p-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-700 flex items-center gap-2">
+                             <Briefcase className="h-3 w-3 text-gray-400" />
+                             {employee.Role__c || 'N/A'}
+                         </div>
+                    </div>
+
+                     <div className="space-y-1">
+                         {/* Status is already in header, putting Email here instead to balance layout */}
+                        <label className="text-xs font-semibold text-gray-500 uppercase">Email</label>
+                        <div className="p-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-700 flex items-center gap-2">
+                             <Mail className="h-3 w-3 text-gray-400" />
+                             {employee.Email__c}
+                        </div>
+                    </div>
+
+                     <div className="space-y-1">
+                         <label className="text-xs font-semibold text-gray-500 uppercase">Password</label>
+                         <div className="p-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-700">
+                             ••••••••••••
+                         </div>
+                    </div>
+
+                     <div className="space-y-1 md:col-span-2 border-t pt-4 mt-2">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <DollarSign className="h-4 w-4 text-green-600" />
+                            Financials
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <div className="space-y-1">
+                                <label className="text-xs font-semibold text-gray-500 uppercase">Cost Rate</label>
+                                <div className="p-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-700">
+                                    {employee.Cost_Rate__c ? `$${employee.Cost_Rate__c}/hr` : 'N/A'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div>
-                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Employee ID</label>
-                   <div className="text-sm font-mono text-gray-600">{employee.Id}</div>
-                </div>
-              </div>
             </CardContent>
-          </Card>
-        </div>
+        </Card>
       ) : (
         !error && (
             <div className="text-center py-12 bg-white rounded-lg border border-dashed border-gray-300">
