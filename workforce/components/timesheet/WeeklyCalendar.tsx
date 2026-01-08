@@ -74,11 +74,57 @@ export function WeeklyCalendar() {
     loadProjects()
   }, [])
 
-  const [entries, setEntries] = React.useState<TimesheetEntry[]>([
-    { id: "e1", projectId: "p1", date: format(addDays(currentWeekStart, 0), "yyyy-MM-dd"), hours: 8 },
-    { id: "e2", projectId: "p1", date: format(addDays(currentWeekStart, 1), "yyyy-MM-dd"), hours: 8 },
-    { id: "e3", projectId: "p2", date: format(addDays(currentWeekStart, 2), "yyyy-MM-dd"), hours: 4 },
-  ])
+  // Fetch timesheet data when week changes
+  React.useEffect(() => {
+    async function loadTimesheet() {
+      // Don't show global loading if just switching weeks (optional UX choice, but better to show entry loading)
+      // For now, we reuse 'loading' for initial load, but maybe we need a local 'fetchingEntries' state
+      const weekStr = format(currentWeekStart, "yyyy-MM-dd");
+      
+      try {
+        const res = await fetch(`/api/timesheets?weekStart=${weekStr}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status) { // If we got data back
+            setStatus(data.status);
+            // Transform backend entries to frontend format if needed (though API already matches mostly)
+            // Backend sends: { id, projectId, date, hours, ... }
+            if (data.entries) {
+               setEntries(data.entries.map((e: any) => ({
+                 id: e.id,
+                 projectId: e.projectId,
+                 date: e.date,
+                 hours: e.hours
+               })));
+               
+               // Also make sure these projects are visible
+               const newProjectIds = data.entries.map((e: any) => e.projectId);
+               setVisibleProjectIds(prev => Array.from(new Set([...prev, ...newProjectIds])));
+            }
+          } else {
+            // No data for this week -> Reset to empty Draft
+            setStatus("Draft");
+            setEntries([]);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load history", err);
+        // Don't toast error on simple navigation to empty weeks, just log
+      }
+    }
+    
+    // Only run if not the very first initial mount (which might race with project loading)
+    // But actually we want it to run on first mount too.
+    if (!loading) {
+        loadTimesheet();
+    }
+  }, [currentWeekStart, loading]);
+
+  const projects = allProjects.filter(p => visibleProjectIds.includes(p.id))
+
+  // ... (Keep handleSync etc.)
+
+  const [entries, setEntries] = React.useState<TimesheetEntry[]>([])
 
   // Helper to get hours
   const getHours = (projectId: string, dayIndex: number) => {
@@ -160,7 +206,7 @@ export function WeeklyCalendar() {
 
   const handleNavigateWeek = (direction: number) => {
     setCurrentWeekStart(prev => addDays(prev, direction * 7))
-    setStatus("Draft") // Reset status for the new week view
+    // Status and Entries will be updated by the useEffect above
   }
 
   // Calculate totals

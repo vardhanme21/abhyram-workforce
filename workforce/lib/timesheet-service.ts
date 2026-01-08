@@ -130,6 +130,50 @@ export class TimesheetService {
   }
 
   /**
+   * Fetches a timesheet for a specific week
+   */
+  static async getTimesheet(email: string, weekStart: string) {
+    const conn = await getSalesforceConnection();
+
+    // 1. Find Employee
+    const employee = await conn.sobject('Employee__c').findOne({ Email__c: email }) as { Id: string } | null;
+    if (!employee) return null;
+
+    // 2. Query Timesheet with Entries and Project Names
+    // We use a relationship query to get Entries in one go
+    // And we fetch Project__r.Name to show readable names
+    const soql = `
+      SELECT Id, Status__c, Total_Hours__c,
+        (SELECT Id, Date__c, Hours__c, Project__c, Project__r.Name, Project__r.Project_Name__c, Project__r.Project_Code__c 
+         FROM Timesheet_Entries__r)
+      FROM Timesheet__c
+      WHERE Employee__c = '${employee.Id}' 
+      AND Week_Start_Date__c = ${weekStart}
+      LIMIT 1
+    `;
+
+    const result = await conn.query(soql) as { records: any[], totalSize: number };
+    if (result.records.length === 0) return null;
+
+    const ts = result.records[0];
+    
+    // Map entries to our frontend format
+    const entries = (ts.Timesheet_Entries__r?.records || []).map((e: any) => ({
+      id: e.Id,
+      projectId: e.Project__c,
+      projectName: e.Project__r?.Name || e.Project__r?.Project_Name__c || 'Unknown Project',
+      projectCode: e.Project__r?.Project_Code__c || 'N/A',
+      date: e.Date__c,
+      hours: e.Hours__c
+    }));
+
+    return {
+      status: ts.Status__c,
+      entries
+    };
+  }
+
+  /**
    * Creates a new project in Salesforce
    */
   static async createProject(data: {
