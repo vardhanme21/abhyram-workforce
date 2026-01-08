@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import jsforce from 'jsforce';
 
 /**
@@ -6,8 +6,8 @@ import jsforce from 'jsforce';
  * 
  * Usage: /api/debug/token?code=YOUR_CODE_FROM_URL
  */
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+export async function GET(_request: NextRequest): Promise<NextResponse> {
+  const { searchParams } = new URL(_request.url);
   const code = searchParams.get('code');
 
   if (!code) {
@@ -44,11 +44,12 @@ export async function GET(request: Request) {
       instanceUrl: conn.instanceUrl,
       userId: userInfo.id
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const error = err as { message?: string };
     console.error('[TOKEN_EXCHANGE_ERROR]', err);
     return NextResponse.json({ 
       error: 'Failed to exchange token', 
-      details: err.message,
+      details: error.message || String(err),
       hint: 'Ensure your Redirect URI in Salesforce matches your Vercel URL exactly.'
     }, { status: 500 });
   }

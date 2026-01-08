@@ -1,5 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import jsforce from 'jsforce';
+
+interface SalesforceTokenResponse {
+  access_token: string;
+  instance_url: string;
+  error?: string;
+  error_description?: string;
+}
 
 /**
  * Salesforce Connection Utility
@@ -18,17 +24,18 @@ export async function getSalesforceConnection() {
   // 1. Fetch Access Token via Zero-Handshake Client Credentials Flow
   // This is the simplest modern method: No passwords, no refresh tokens, no codes.
   try {
+    const params = new URLSearchParams();
+    params.append('grant_type', 'client_credentials');
+    params.append('client_id', clientId);
+    params.append('client_secret', clientSecret);
+
     const tokenRes = await fetch(`${loginUrl}/services/oauth2/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: clientId,
-        client_secret: clientSecret
-      } as any)
+      body: params
     });
 
-    const tokenData: any = await tokenRes.json();
+    const tokenData = await tokenRes.json() as SalesforceTokenResponse;
 
     if (tokenData.error) {
        // Fallback for older Orgs or misconfigured apps: Try Password/Refresh if they exist
@@ -53,7 +60,7 @@ export async function getSalesforceConnection() {
     });
 
     return conn;
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[SALESFORCE_CONNECT_ERROR]', err);
     throw err;
   }
@@ -70,13 +77,14 @@ export async function syncTimesheetToSalesforce(entry: { email: string; name?: s
   
   if (!employee) {
     // Auto-create simplified employee if not found
-    const result: any = await conn.sobject('Employee__c').create({
+    const result = await conn.sobject('Employee__c').create({
       Full_Name__c: entry.name || entry.email.split('@')[0],
       Email__c: entry.email,
       Status__c: 'Active'
-    });
+    }) as { id: string; success: boolean };
+    
     employee = { Id: result.id };
   }
 
-  return { success: true, employeeId: (employee as any).Id };
+  return { success: true, employeeId: (employee as { Id: string }).Id };
 }

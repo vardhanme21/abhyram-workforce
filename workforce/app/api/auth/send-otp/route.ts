@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const { email } = await request.json();
 
@@ -19,7 +19,8 @@ export async function POST(request: Request) {
       success: true, 
       message: 'Verification code sent to your email.' 
     });
-  } catch {
+  } catch (error) {
+    console.error('[AUTH_OTP_ERROR]', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { getSalesforceConnection } from '@/lib/salesforce';
 
 export async function GET(request: NextRequest) {
-  const diagnostics: Record<string, any> = {
+  const diagnostics: Record<string, unknown> = {
     timestamp: new Date().toISOString(),
     env: {
       NEXTAUTH_URL: process.env.NEXTAUTH_URL || '❌ Missing',
@@ -40,12 +40,13 @@ export async function GET(request: NextRequest) {
     // Test Salesforce Connection via getSalesforceConnection (Unified Test)
     try {
       const conn = await getSalesforceConnection();
-      const identity: any = await conn.identity();
+      const identity = await conn.identity() as { username: string };
       diagnostics.salesforce_test = `✅ Successful (Connected as: ${identity.username})`;
-    } catch (sfErr: any) {
-      diagnostics.salesforce_test = `❌ Failed: ${sfErr instanceof Error ? sfErr.message : String(sfErr)}`;
+    } catch (sfErr: unknown) {
+      const error = sfErr as { message?: string };
+      diagnostics.salesforce_test = `❌ Failed: ${error.message || String(sfErr)}`;
       
-      if (sfErr.message?.includes('unsupported_grant_type')) {
+      if (error.message?.includes('unsupported_grant_type')) {
         diagnostics.salesforce_test += ' | 💡 FIX: Check "Enable Client Credentials Flow" in your Connected App settings.';
       }
     }

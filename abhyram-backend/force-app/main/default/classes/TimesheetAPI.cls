@@ -18,6 +18,7 @@ global with sharing class TimesheetAPI {
         ];
 
         // Get or create timesheet
+        Timesheet__c timesheet;
         List<Timesheet__c> timesheets = [
             SELECT Id, Week_Start_Date__c, Week_End_Date__c, Status__c,
                    Total_Hours__c, Billable_Hours__c
@@ -27,15 +28,8 @@ global with sharing class TimesheetAPI {
             LIMIT 1
         ];
 
-        Timesheet__c timesheet;
         if (timesheets.isEmpty()) {
-            timesheet = new Timesheet__c(
-                Employee__c = emp.Id,
-                Week_Start_Date__c = weekStart,
-                Week_End_Date__c = weekStart.addDays(6),
-                Status__c = 'Draft'
-            );
-            insert timesheet;
+            timesheet = createDraftTimesheet(emp.Id, weekStart);
         } else {
             timesheet = timesheets[0];
         }
@@ -162,6 +156,17 @@ global with sharing class TimesheetAPI {
         // Trigger approval process would go here
 
         return new SubmitResponse(true, 'Timesheet submitted for approval');
+    }
+
+    private static Timesheet__c createDraftTimesheet(Id employeeId, Date weekStart) {
+        Timesheet__c ts = new Timesheet__c(
+            Employee__c = employeeId,
+            Week_Start_Date__c = weekStart,
+            Week_End_Date__c = weekStart.addDays(6),
+            Status__c = 'Draft'
+        );
+        insert ts;
+        return ts;
     }
 
     // Response classes
