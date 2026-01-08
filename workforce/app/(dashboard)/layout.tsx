@@ -33,6 +33,9 @@ export default function DashboardLayout({
               <Link href="/dashboard/timesheet" className="text-sm font-medium text-gray-500 hover:text-accent-500 transition-colors">
                 Timesheets
               </Link>
+              <Link href="/dashboard/projects" className="text-sm font-medium text-gray-500 hover:text-accent-500 transition-colors">
+                Projects
+              </Link>
               <Link href="/dashboard/manager" className="text-sm font-medium text-gray-500 hover:text-accent-500 transition-colors">
                 Manager
               </Link>

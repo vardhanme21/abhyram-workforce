@@ -119,4 +119,42 @@ export class TimesheetService {
       entryCount: newEntries.length 
     };
   }
+
+  /**
+   * Creates a new project in Salesforce
+   */
+  static async createProject(data: {
+    projectName: string;
+    projectCode: string;
+    status?: string;
+    billable?: boolean;
+    projectType?: string;
+    startDate?: string;
+    endDate?: string;
+    budgetHours?: number;
+  }) {
+    const conn = await getSalesforceConnection();
+
+    const projectData = {
+      Project_Name__c: data.projectName,
+      Project_Code__c: data.projectCode,
+      Status__c: data.status || 'Active',
+      Billable__c: data.billable !== undefined ? data.billable : true,
+      Project_Type__c: data.projectType,
+      Start_Date__c: data.startDate,
+      End_Date__c: data.endDate,
+      Budget_Hours__c: data.budgetHours
+    };
+
+    const result = await conn.sobject('Project__c').create(projectData) as SalesforceResult;
+
+    if (!result.success) {
+      throw new Error('Failed to create project in Salesforce');
+    }
+
+    return {
+      success: true,
+      projectId: result.id
+    };
+  }
 }
