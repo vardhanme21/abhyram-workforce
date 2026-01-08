@@ -67,12 +67,19 @@ export class TimesheetService {
     // 2. Find or Create the Header (Timesheet__c)
     // A header usually represents one employee for one week
     // Note: jsforce requires a JavaScript Date object for date fields in queries
+    // Note: jsforce requires a JavaScript Date object for date fields in queries
     // BUT for pure SOQL string bindings, YYYY-MM-DD string is safer to avoid 'Mon Jan 01...' format errors
+    // Use manual SOQL to avoid 'quotes' error on Date fields
     
-    let timesheet = await conn.sobject('Timesheet__c').findOne({
-      Employee__c: employee.Id,
-      Week_Start_Date__c: data.weekStart // Use string directly
-    }) as { Id: string } | null;
+    // Safety check for SQL injection (though generic ID/Date patterns are safe)
+    if (!/^\d\d\d\d-\d\d-\d\d$/.test(data.weekStart)) {
+      throw new Error("Invalid date format. Expected YYYY-MM-DD");
+    }
+
+    const soql = `SELECT Id, Week_Start_Date__c, Status__c FROM Timesheet__c WHERE Employee__c = '${employee.Id}' AND Week_Start_Date__c = ${data.weekStart} LIMIT 1`;
+    
+    const queryResult = await conn.query(soql) as { records: { Id: string }[], totalSize: number };
+    let timesheet = queryResult.records.length > 0 ? queryResult.records[0] : null;
 
     const timesheetData = {
       Employee__c: employee.Id,
