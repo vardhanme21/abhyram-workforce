@@ -25,7 +25,7 @@ export default async function DebugSessionPage() {
           <p className="font-bold text-yellow-800">Troubleshooting Steps:</p>
           <ol className="list-decimal pl-5 mt-2 text-sm text-yellow-700">
              <li>If any variables above are <strong>MISSING</strong>, add them in Vercel.</li>
-             <li>If all are <strong>Set</strong>, try clicking "Sign In" again.</li>
+             <li>If all are <strong>Set</strong>, try clicking &quot;Sign In&quot; again.</li>
              <li>Watch the URL bar. If it redirects back to login with an error, tell me the error.</li>
           </ol>
         </div>
