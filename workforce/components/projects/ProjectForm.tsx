@@ -28,6 +28,16 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
     setLoading(true)
 
     try {
+      
+      // Basic Validation
+      if (formData.startDate && formData.endDate) {
+        if (new Date(formData.startDate) > new Date(formData.endDate)) {
+          toast.error("Start Date cannot be after End Date")
+          setLoading(false)
+          return
+        }
+      }
+
       const res = await fetch("/api/projects/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

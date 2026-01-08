@@ -1,0 +1,38 @@
+﻿
+> workforce@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.1 (Turbopack)
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 7.6s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/16) ...
+  Generating static pages using 7 workers (4/16) 
+  Generating static pages using 7 workers (8/16) 
+  Generating static pages using 7 workers (12/16) 
+Γ£ô Generating static pages using 7 workers (16/16) in 560.5ms
+  Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ ╞Æ /api/auth/[...nextauth]
+Γö£ ╞Æ /api/auth/send-otp
+Γö£ ╞Æ /api/debug/token
+Γö£ ╞Æ /api/debug/verify
+Γö£ ╞Æ /api/projects
+Γö£ ╞Æ /api/projects/create
+Γö£ ╞Æ /api/timesheets/sync
+Γö£ Γùï /dashboard
+Γö£ Γùï /dashboard/timesheet
+Γö£ Γùï /login
+Γö£ Γùï /manager
+Γö£ Γùï /projects
+Γöö Γùï /reports
+
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+
