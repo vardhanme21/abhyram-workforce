@@ -3,6 +3,7 @@ import SalesforceProvider from "next-auth/providers/salesforce";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
+  // @ts-expect-error - trustHost is valid in runtime but missing in v4 types
   trustHost: true, // Essential for Vercel serverless environment
   providers: [
     CredentialsProvider({
