@@ -3,6 +3,7 @@ import SalesforceProvider from "next-auth/providers/salesforce";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
+  trustHost: true, // Essential for Vercel serverless environment
   providers: [
     CredentialsProvider({
       id: "email-otp",
