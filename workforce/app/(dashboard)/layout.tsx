@@ -34,13 +34,13 @@ export default function DashboardLayout({
               <Link href="/dashboard/timesheet" className="text-sm font-medium text-gray-500 hover:text-accent-500 transition-colors">
                 Timesheets
               </Link>
-              <Link href="/dashboard/projects" className="text-sm font-medium text-gray-500 hover:text-accent-500 transition-colors">
+              <Link href="/projects" className="text-sm font-medium text-gray-500 hover:text-accent-500 transition-colors">
                 Projects
               </Link>
-              <Link href="/dashboard/manager" className="text-sm font-medium text-gray-500 hover:text-accent-500 transition-colors">
+              <Link href="/manager" className="text-sm font-medium text-gray-500 hover:text-accent-500 transition-colors">
                 Manager
               </Link>
-              <Link href="/dashboard/reports" className="text-sm font-medium text-gray-500 hover:text-accent-500 transition-colors">
+              <Link href="/reports" className="text-sm font-medium text-gray-500 hover:text-accent-500 transition-colors">
                 Reports
               </Link>
             </nav>
@@ -66,7 +66,7 @@ export default function DashboardLayout({
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={() => signOut()}
+                onClick={() => signOut({ callbackUrl: '/login' })}
                 className="text-gray-400 hover:text-error transition-colors"
               >
                 <LogOut className="h-4 w-4" />
