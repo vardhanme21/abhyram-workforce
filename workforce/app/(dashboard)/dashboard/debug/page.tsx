@@ -16,7 +16,7 @@ export default async function DebugSessionPage() {
           <li>NEXTAUTH_URL: {process.env.NEXTAUTH_URL ? `Set (${process.env.NEXTAUTH_URL})` : <span className="text-red-600 font-bold">MISSING</span>}</li>
           <li>NEXTAUTH_SECRET: {process.env.NEXTAUTH_SECRET ? `Set (Length: ${process.env.NEXTAUTH_SECRET.length})` : <span className="text-red-600 font-bold">MISSING</span>}</li>
           <li>NODE_ENV: {process.env.NODE_ENV}</li>
-          <li>Trust Host: {authOptions.trustHost ? 'Enabled' : 'Disabled'}</li>
+          <li>Trust Host: {(authOptions as any).trustHost ? 'Enabled' : 'Disabled'}</li>
           <li className="mt-2 text-blue-600 font-semibold">Salesforce Config:</li>
           <li>CLIENT_ID: {process.env.SALESFORCE_CLIENT_ID ? 'Set' : <span className="text-red-600 font-bold">MISSING</span>}</li>
           <li>CLIENT_SECRET: {process.env.SALESFORCE_CLIENT_SECRET ? 'Set' : <span className="text-red-600 font-bold">MISSING</span>}</li>
