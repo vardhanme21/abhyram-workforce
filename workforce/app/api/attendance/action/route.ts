@@ -13,13 +13,27 @@ export async function POST(req: Request) {
     const { action } = await req.json(); // START or STOP
 
     const conn = await getSalesforceConnection();
-    const userQuery = await conn.query(`SELECT Id FROM User WHERE Email = '${session.user.email}' LIMIT 1`);
-    if (userQuery.totalSize === 0) throw new Error("User not found");
-    const userId = userQuery.records[0].Id;
+    const userQuery = await conn.query(`SELECT Id FROM Employee__c WHERE Email__c = '${session.user.email}' LIMIT 1`);
+    
+    // Auto-create employee if missing (robustness)
+    let userId: string;
+    if (userQuery.totalSize === 0) {
+         const empName = session.user.name || 'Unknown';
+         const newEmp = await conn.sobject('Employee__c').create({
+             Name: empName,
+             Full_Name__c: empName,
+             Email__c: session.user.email!, // Email is checked above
+             Status__c: 'Active'
+         });
+         if (!newEmp.success) throw new Error("Failed to create Employee record");
+         userId = newEmp.id;
+    } else {
+         userId = userQuery.records[0].Id;
+    }
 
     if (action === 'START') {
         await conn.sobject('Attendance_Log__c').create({
-            Employee__c: userId,
+            Employee_Ref__c: userId,
             Login_Time__c: new Date().toISOString(), // JSForce handles Date conversion
             Status__c: 'Active'
         });
@@ -27,7 +41,7 @@ export async function POST(req: Request) {
         // Find active log
         const logs = await conn.sobject('Attendance_Log__c')
             .find({ 
-                Employee__c: userId, 
+                Employee_Ref__c: userId, 
                 Logout_Time__c: null,
                 Status__c: 'Active'
             })

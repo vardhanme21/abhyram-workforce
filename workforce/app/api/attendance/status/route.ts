@@ -13,14 +13,20 @@ export async function GET() {
     try {
         const conn = await getSalesforceConnection();
         // Use user ID (lookup from email if needed, or assumng session has SF ID)
-        const userQuery = await conn.query(`SELECT Id FROM User WHERE Email = '${session.user.email}' LIMIT 1`);
-        if (userQuery.totalSize === 0) throw new Error("User not found in Salesforce");
+        // QUERY EMPLOYEE__C (Custom Object) instead of User
+        const userQuery = await conn.query(`SELECT Id FROM Employee__c WHERE Email__c = '${session.user.email}' LIMIT 1`);
+        
+        if (userQuery.totalSize === 0) {
+             // Optional: Auto-create employee if strictly needed, but usually signup handles it.
+             // For now, return inactive if no employee text found.
+             return NextResponse.json({ isActive: false });
+        }
         const userId = userQuery.records[0].Id;
 
         // Query direct status from Attendance_Log__c
         const logs = await conn.sobject('Attendance_Log__c')
             .find({ 
-                Employee__c: userId, 
+                Employee_Ref__c: userId, 
                 Logout_Time__c: null,
                 Status__c: 'Active'
             })
