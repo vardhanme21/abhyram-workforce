@@ -13,6 +13,8 @@ export async function POST(req: Request) {
     const { action } = await req.json(); // START or STOP
 
     const conn = await getSalesforceConnection();
+    console.log(`[ATTENDANCE] Processing action: ${action} for ${session.user.email}`);
+    
     const userQuery = await conn.query(`SELECT Id FROM Employee__c WHERE Email__c = '${session.user.email}' LIMIT 1`);
     
     // Auto-create employee if missing (robustness)
@@ -22,16 +24,17 @@ export async function POST(req: Request) {
          const newEmp = await conn.sobject('Employee__c').create({
              Name: empName,
              Full_Name__c: empName,
-             Email__c: session.user.email!, // Email is checked above
+             Email__c: session.user.email as string,
              Status__c: 'Active'
          });
          if (!newEmp.success) throw new Error("Failed to create Employee record");
          userId = newEmp.id;
     } else {
-         userId = userQuery.records[0].Id;
+         userId = userQuery.records[0].Id as string;
     }
 
     if (action === 'START') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await conn.sobject('Attendance_Log__c').create({
             Employee_Ref__c: userId,
             Login_Time__c: new Date().toISOString(), // JSForce handles Date conversion
