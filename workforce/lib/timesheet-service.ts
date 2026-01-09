@@ -200,6 +200,10 @@ export class TimesheetService {
     startDate?: string;
     endDate?: string;
     budgetHours?: number;
+    projectManager?: string;
+    billableRate?: number;
+    account?: string;
+    opportunity?: string;
   }) {
     const conn = await getSalesforceConnection();
 
@@ -212,7 +216,11 @@ export class TimesheetService {
       projectType: data.projectType,
       startDate: data.startDate, // YYYY-MM-DD
       endDate: data.endDate,     // YYYY-MM-DD
-      budgetHours: data.budgetHours
+      budgetHours: data.budgetHours,
+      projectManager: data.projectManager, // Passing as Text for now, Apex can handle lookup logic if needed
+      billableRate: data.billableRate,
+      account: data.account,
+      opportunity: data.opportunity
     }) as { success: boolean; projectId: string; message: string };
 
     if (!result.success) {

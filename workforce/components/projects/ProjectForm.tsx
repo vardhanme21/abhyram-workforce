@@ -1,7 +1,8 @@
+
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/Button"
+import { AnimatedButton } from "@/components/ui/MotionButton"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
 import { toast } from "sonner"
 
@@ -20,15 +21,22 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
     projectType: "",
     startDate: "",
     endDate: "",
-    budgetHours: ""
+    budgetHours: "",
+    projectManager: "",
+    billableRate: "",
+    account: "",
+    opportunity: ""
   })
+
+  // Mock data for dropdowns
+  const projectTypes = ["Fixed Price", "Time & Materials", "Retainer", "Internal", "Capital"];
+  const statuses = ["Active", "Planning", "On Hold", "Completed", "Cancelled"];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      
       // Basic Validation
       if (formData.startDate && formData.endDate) {
         if (new Date(formData.startDate) > new Date(formData.endDate)) {
@@ -42,29 +50,14 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          projectName: formData.projectName,
-          projectCode: formData.projectCode,
-          status: formData.status,
-          billable: formData.billable,
-          projectType: formData.projectType || undefined,
-          startDate: formData.startDate || undefined,
-          endDate: formData.endDate || undefined,
-          budgetHours: formData.budgetHours ? parseFloat(formData.budgetHours) : undefined
+           ...formData,
+           budgetHours: formData.budgetHours ? parseFloat(formData.budgetHours) : undefined,
+           billableRate: formData.billableRate ? parseFloat(formData.billableRate) : undefined
         })
       })
 
       if (res.ok) {
         toast.success("Project created successfully!")
-        setFormData({
-          projectName: "",
-          projectCode: "",
-          status: "Active",
-          billable: true,
-          projectType: "",
-          startDate: "",
-          endDate: "",
-          budgetHours: ""
-        })
         onSuccess?.()
       } else {
         const error = await res.json()
@@ -78,144 +71,170 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
     }
   }
 
+  const handleChange = (field: string, value: string | boolean | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create New Project</CardTitle>
-        <CardDescription>Add a new project to track time against</CardDescription>
+    <Card className="w-full max-w-4xl mx-auto shadow-sm">
+      <CardHeader className="pb-4 border-b border-gray-100">
+        <CardTitle>New Project</CardTitle>
+        <CardDescription>Enter project details below.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="projectName" className="text-sm font-medium text-gray-700">
-                Project Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="projectName"
-                type="text"
-                required
-                value={formData.projectName}
-                onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
-                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="Client Portal Redesign"
-              />
+      <CardContent className="pt-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Left Column */}
+            <div className="space-y-4">
+                <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">Project Name <span className="text-red-500">*</span></label>
+                    <input 
+                        required
+                        className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        value={formData.projectName}
+                        onChange={e => handleChange('projectName', e.target.value)}
+                    />
+                </div>
+
+                 <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">Project Manager</label>
+                    <input 
+                        className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="Search Employees..."
+                        value={formData.projectManager}
+                        onChange={e => handleChange('projectManager', e.target.value)}
+                    />
+                </div>
+
+                 <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">Project Code <span className="text-red-500">*</span></label>
+                    <input 
+                        required
+                         className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        value={formData.projectCode}
+                        onChange={e => handleChange('projectCode', e.target.value)}
+                    />
+                </div>
+
+                <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">Project Type</label>
+                    <select 
+                         className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        value={formData.projectType}
+                        onChange={e => handleChange('projectType', e.target.value)}
+                    >
+                        <option value="">--None--</option>
+                        {projectTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                </div>
+                
+                 <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">Opportunity</label>
+                    <input 
+                        className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="Search Opportunities..."
+                        value={formData.opportunity}
+                        onChange={e => handleChange('opportunity', e.target.value)}
+                    />
+                </div>
+
+                <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">Status</label>
+                    <select 
+                         className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        value={formData.status}
+                        onChange={e => handleChange('status', e.target.value)}
+                    >
+                         {statuses.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                </div>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="projectCode" className="text-sm font-medium text-gray-700">
-                Project Code <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="projectCode"
-                type="text"
-                required
-                value={formData.projectCode}
-                onChange={(e) => setFormData({ ...formData, projectCode: e.target.value })}
-                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="CP-2024-001"
-              />
-            </div>
+            {/* Right Column */}
+            <div className="space-y-4">
+                <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">Start Date</label>
+                    <input 
+                        type="date"
+                         className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        value={formData.startDate}
+                        onChange={e => handleChange('startDate', e.target.value)}
+                    />
+                </div>
 
-            <div className="space-y-2">
-              <label htmlFor="status" className="text-sm font-medium text-gray-700">
-                Status
-              </label>
-              <select
-                id="status"
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="Active">Active</option>
-                <option value="Planning">Planning</option>
-                <option value="On Hold">On Hold</option>
-                <option value="Completed">Completed</option>
-              </select>
-            </div>
+                 <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">End Date</label>
+                    <input 
+                        type="date"
+                         className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        value={formData.endDate}
+                        onChange={e => handleChange('endDate', e.target.value)}
+                    />
+                </div>
 
-            <div className="space-y-2">
-              <label htmlFor="projectType" className="text-sm font-medium text-gray-700">
-                Project Type
-              </label>
-              <select
-                id="projectType"
-                value={formData.projectType}
-                onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
-                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="">Select Type</option>
-                <option value="Fixed Price">Fixed Price</option>
-                <option value="Time & Materials">Time & Materials</option>
-                <option value="Retainer">Retainer</option>
-                <option value="Internal">Internal</option>
-              </select>
-            </div>
+                 <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">Billable Rate</label>
+                    <input 
+                         type="number"
+                         className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        value={formData.billableRate}
+                        onChange={e => handleChange('billableRate', e.target.value)}
+                    />
+                </div>
 
-            <div className="space-y-2">
-              <label htmlFor="startDate" className="text-sm font-medium text-gray-700">
-                Start Date
-              </label>
-              <input
-                id="startDate"
-                type="date"
-                value={formData.startDate}
-                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
+                <div className="flex items-center gap-2 pt-6 pb-2">
+                     <input 
+                        type="checkbox"
+                        id="billable"
+                        checked={formData.billable}
+                        onChange={e => handleChange('billable', e.target.checked)}
+                        className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                     />
+                      <label htmlFor="billable" className="text-sm font-medium text-gray-700">Billable</label>
+                </div>
 
-            <div className="space-y-2">
-              <label htmlFor="endDate" className="text-sm font-medium text-gray-700">
-                End Date
-              </label>
-              <input
-                id="endDate"
-                type="date"
-                value={formData.endDate}
-                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
+                 <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">Account</label>
+                    <input 
+                        className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                         placeholder="Search Accounts..."
+                        value={formData.account}
+                        onChange={e => handleChange('account', e.target.value)}
+                    />
+                </div>
 
-            <div className="space-y-2">
-              <label htmlFor="budgetHours" className="text-sm font-medium text-gray-700">
-                Budget Hours
-              </label>
-              <input
-                id="budgetHours"
-                type="number"
-                step="0.5"
-                value={formData.budgetHours}
-                onChange={(e) => setFormData({ ...formData, budgetHours: e.target.value })}
-                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="160"
-              />
-            </div>
+                 <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">Budget Hours</label>
+                    <input 
+                        type="number"
+                         className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        value={formData.budgetHours}
+                        onChange={e => handleChange('budgetHours', e.target.value)}
+                    />
+                </div>
+                
+                 {/* Read-only Owner Field */}
+                 <div className="space-y-1 pt-2">
+                    <label className="text-xs uppercase text-gray-400 font-semibold">Owner</label>
+                     <div className="flex items-center gap-2 text-sm text-gray-700 font-medium">
+                        <div className="h-6 w-6 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-xs">U</div>
+                        Current User
+                     </div>
+                </div>
 
-            <div className="space-y-2 flex items-center pt-6">
-              <input
-                id="billable"
-                type="checkbox"
-                checked={formData.billable}
-                onChange={(e) => setFormData({ ...formData, billable: e.target.checked })}
-                className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-              />
-              <label htmlFor="billable" className="ml-2 text-sm font-medium text-gray-700">
-                Billable Project
-              </label>
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button type="submit" disabled={loading} className="flex-1">
-              {loading ? "Creating..." : "Create Project"}
-            </Button>
+          <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
             {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
+              <AnimatedButton type="button" variant="outline" onClick={onCancel} disabled={loading}>
                 Cancel
-              </Button>
+              </AnimatedButton>
             )}
+            <AnimatedButton type="submit" disabled={loading} className="min-w-[100px]">
+              {loading ? "Saving..." : "Save"}
+            </AnimatedButton>
           </div>
         </form>
       </CardContent>

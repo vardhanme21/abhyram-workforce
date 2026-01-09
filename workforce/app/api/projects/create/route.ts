@@ -28,7 +28,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       projectType: data.projectType,
       startDate: data.startDate,
       endDate: data.endDate,
-      budgetHours: data.budgetHours
+      budgetHours: data.budgetHours,
+      projectManager: data.projectManager,
+      billableRate: data.billableRate,
+      account: data.account,
+      opportunity: data.opportunity
     });
 
     return NextResponse.json(result);
