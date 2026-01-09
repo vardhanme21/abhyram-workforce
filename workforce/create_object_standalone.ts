@@ -37,7 +37,7 @@ async function getConnection() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params
       });
-      const tokenData = await tokenRes.json() as any;
+      const tokenData = await tokenRes.json() as { access_token: string; instance_url: string; error_description?: string };
       if (tokenData.access_token) {
         return new jsforce.Connection({
             instanceUrl: tokenData.instance_url,
@@ -103,7 +103,7 @@ async function createObject() {
     try {
         await conn.metadata.read('CustomObject', ['Attendance_Log__c']);
         // If read succeeds it just returns array.
-    } catch (e) {
+    } catch {
         // ignore
     }
 

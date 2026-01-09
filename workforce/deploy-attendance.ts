@@ -24,7 +24,7 @@ async function deployAttendanceAPI() {
 
     const existing = await conn.tooling.sobject('ApexClass').find({ Name: className }).execute();
     
-    if (existing.length > 0) {
+    if (existing.length > 0 && existing[0].Id) {
         console.log(`[DEPLOY] Updating existing class...`);
         await conn.tooling.sobject('ApexClass').update({
             Id: existing[0].Id,
@@ -39,10 +39,14 @@ async function deployAttendanceAPI() {
     }
     console.log(`[DEPLOY] Success!`);
 
-  } catch (err: any) {
-    console.error(`[DEPLOY] Error:`, err.message || err);
-    if (err.message && err.message.includes("Invalid type: Attendance_Log__c")) {
-        console.log("\n[ACTION REQUIRED] It seems the 'Attendance_Log__c' object does not exist. Please create it manually or request me to use a different object.");
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+        console.error(`[DEPLOY] Error:`, err.message);
+        if (err.message.includes("Invalid type: Attendance_Log__c")) {
+            console.log("\n[ACTION REQUIRED] It seems the 'Attendance_Log__c' object does not exist. Please create it manually or request me to use a different object.");
+        }
+    } else {
+        console.error(`[DEPLOY] Unknown Error:`, err);
     }
     process.exit(1);
   }

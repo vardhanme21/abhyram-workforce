@@ -81,7 +81,7 @@ export default function AttendanceTimer() {
         // If simulated backend failure, manually toggle for demo if strictly requested? 
         // No, stick to error.
       }
-    } catch (error) {
+    } catch {
       toast.error("Network error")
     } finally {
       setLoading(false)

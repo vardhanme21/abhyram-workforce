@@ -36,12 +36,13 @@ export async function GET() {
         }
         return NextResponse.json({ isActive: false });
 
-    } catch (sfError: any) {
-        console.warn("Salesforce sync failed", sfError.message);
+    } catch (sfError: unknown) {
+        const msg = sfError instanceof Error ? sfError.message : "Unknown Salesforce Error";
+        console.warn("Salesforce sync failed", msg);
         return NextResponse.json({ isActive: false });
     }
 
-  } catch (error) {
+  } catch (error) { // eslint-disable-line @typescript-eslint/no-unused-vars
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
