@@ -111,13 +111,18 @@ async function createObject() {
     
     if (result.success) {
         console.log('Success! Attendance_Log__c created.');
+        fs.writeFileSync('creation_result.json', JSON.stringify({ success: true, message: 'Created' }));
     } else {
         console.log('Result:', JSON.stringify(result, null, 2));
+        fs.writeFileSync('creation_result.json', JSON.stringify({ success: false, result }));
     }
 
-  } catch (err) {
-    console.error('Script Error:', err);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('Script Error:', msg);
+    fs.writeFileSync('creation_result.json', JSON.stringify({ success: false, error: msg }));
   }
 }
 
+import * as fs from 'fs';
 createObject();
