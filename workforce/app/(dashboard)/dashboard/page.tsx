@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
+import AttendanceTimer from "@/components/dashboard/AttendanceTimer"
 import { Clock, FileText, TrendingUp, Users, Plus, ArrowRight, Calendar } from "lucide-react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
@@ -49,13 +50,18 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-8 text-white shadow-lg">
-        <h1 className="text-3xl font-bold mb-2">
-          Welcome back, {session?.user?.name || "User"}! 👋
-        </h1>
-        <p className="text-primary-100 text-lg">
-          Here&apos;s what&apos;s happening with your workforce today.
-        </p>
+      <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-8 text-white shadow-lg flex items-center justify-between">
+        <div>
+            <h1 className="text-3xl font-bold mb-2">
+              Welcome back, {session?.user?.name || "User"}! 👋
+            </h1>
+            <p className="text-primary-100 text-lg">
+              Here&apos;s what&apos;s happening with your workforce today.
+            </p>
+        </div>
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2 border border-white/20">
+            <AttendanceTimer />
+        </div>
       </div>
 
       {/* Quick Actions */}
