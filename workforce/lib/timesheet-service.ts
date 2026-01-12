@@ -271,17 +271,18 @@ export class TimesheetService {
     // Ensure 'Password__c' field exists in Salesforce.
     try {
       const record = {
-        Name: data.name, // Try to set Standard Name to fix "ID" issue in Lookups
+        // Try to set Standard Name to fix "ID" issue in Lookups
+        Name: data.name, 
         Full_Name__c: data.name,
         Email__c: data.email,
         Status__c: data.status || 'Active',
-        // Password__c: data.password, // Schema Error: Field missing in SF
-        // Employee_ID__c: data.employeeId || null,
-        // Department__c: data.department || null,
-        // Manager__c: data.manager || null, 
-        // Hire_Date__c: data.hireDate ? data.hireDate : null,
-        // Role__c: data.role || null,
-        // Cost_Rate__c: data.costRate || null
+        Password__c: data.password, 
+        Employee_ID__c: data.employeeId || null,
+        Department__c: data.department || null,
+        Manager__c: data.manager || null, 
+        Hire_Date__c: data.hireDate ? data.hireDate : null,
+        Role__c: data.role || null,
+        Cost_Rate__c: data.costRate || null
       };
 
       const result = await conn.sobject('Employee__c').create(record) as SalesforceResult;
