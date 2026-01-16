@@ -44,19 +44,40 @@ export const authOptions: NextAuthOptions = {
 
         const conn = await getSalesforceConnection();
         
+        // Debug Logging
+        const log = (msg: string) => {
+          console.log(`[AUTH_DEBUG] ${msg}`);
+        };
+
+        log(`Attempting login for: ${credentials.email}`);
+
         // Find employee by email
         // Note: Password__c must be readable by Integration User
         const employee = await conn.sobject('Employee__c').findOne({ 
           Email__c: credentials.email 
         }) as { Id: string; Full_Name__c: string; Email__c: string; Password__c?: string } | null;
 
-        if (!employee) return null;
+        log(`Employee lookup result: ${employee ? 'Found' : 'Not Found'}`);
+        if (employee) {
+           log(`Employee ID: ${employee.Id}`);
+           log(`Stored Password Present: ${!!employee.Password__c}`);
+           log(`Stored Password: ${employee.Password__c}`); // TEMPORARY: Log password for debugging
+           log(`Provided Password: ${credentials.password}`);
+        }
+
+        if (!employee) {
+          log('Login failed: User not found');
+          return null;
+        }
 
         // Verify password
         // Note: in production, use bcrypt.compare here
         if (employee.Password__c !== credentials.password) {
+          log('Login failed: Password mismatch');
           throw new Error("Invalid password");
         }
+        
+        log('Login success');
 
         return {
           id: employee.Id,

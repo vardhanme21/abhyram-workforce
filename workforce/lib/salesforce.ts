@@ -17,51 +17,57 @@ export async function getSalesforceConnection() {
   const clientId = process.env.SALESFORCE_CLIENT_ID;
   const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
 
-  if (!clientId || !clientSecret) {
-    throw new Error('SALESFORCE_CLIENT_ID or SALESFORCE_CLIENT_SECRET is missing. Please set them in Vercel.');
+  if ((!clientId || !clientSecret) && (!process.env.SALESFORCE_USERNAME || !process.env.SALESFORCE_PASSWORD)) {
+    throw new Error('SALESFORCE_CLIENT_ID/SECRET or SALESFORCE_USERNAME/PASSWORD are missing. Please set them in Vercel.');
   }
 
   // 1. Fetch Access Token via Zero-Handshake Client Credentials Flow
-  // This is the simplest modern method: No passwords, no refresh tokens, no codes.
-  try {
-    const params = new URLSearchParams();
-    params.append('grant_type', 'client_credentials');
-    params.append('client_id', clientId);
-    params.append('client_secret', clientSecret);
+  if (clientId && clientSecret) {
+    try {
+      const params = new URLSearchParams();
+      params.append('grant_type', 'client_credentials');
+      params.append('client_id', clientId);
+      params.append('client_secret', clientSecret);
 
-    const tokenRes = await fetch(`${loginUrl}/services/oauth2/token`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params
-    });
+      const tokenRes = await fetch(`${loginUrl}/services/oauth2/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params
+      });
 
-    const tokenData = await tokenRes.json() as SalesforceTokenResponse;
+      const tokenData = await tokenRes.json() as SalesforceTokenResponse;
 
-    if (tokenData.error) {
-       // Fallback for older Orgs or misconfigured apps: Try Password/Refresh if they exist
-       console.warn('[SF_CLIENT_CRED_FAILED]', tokenData.error_description);
-       
-       if (process.env.SALESFORCE_REFRESH_TOKEN) {
-         const conn = new jsforce.Connection({
-           oauth2: { loginUrl, clientId, clientSecret },
-           refreshToken: process.env.SALESFORCE_REFRESH_TOKEN
-         });
-         return conn;
-       }
-       
-       throw new Error(`Salesforce Connection Error: ${tokenData.error_description || tokenData.error}. Ensure "Enable Client Credentials Flow" is checked in your Salesforce Connected App settings.`);
+      if (tokenData.error) {
+        // Fallback for older Orgs or misconfigured apps: Try Password/Refresh if they exist
+        console.warn('[SF_CLIENT_CRED_FAILED]', tokenData.error_description);
+        
+        if (process.env.SALESFORCE_REFRESH_TOKEN) {
+          const conn = new jsforce.Connection({
+            oauth2: { loginUrl, clientId, clientSecret },
+            refreshToken: process.env.SALESFORCE_REFRESH_TOKEN
+          });
+          return conn;
+        }
+        
+        // If client creds failed, we might still have user/pass config, so don't throw yet if we have them
+        if (!process.env.SALESFORCE_USERNAME || !process.env.SALESFORCE_PASSWORD) {
+             throw new Error(`Salesforce Connection Error: ${tokenData.error_description || tokenData.error}. Ensure "Enable Client Credentials Flow" is checked in your Salesforce Connected App settings.`);
+        }
+      } else {
+
+        // 2. Initialize jsforce with the obtained token
+        const conn = new jsforce.Connection({
+          instanceUrl: tokenData.instance_url,
+          accessToken: tokenData.access_token,
+          version: '59.0'
+        });
+
+        return conn;
+      }
+    } catch (err: unknown) {
+      console.warn('[SF_CLIENT_CRED_FAILED] trying Username/Password flow...', err);
     }
-
-    // 2. Initialize jsforce with the obtained token
-    const conn = new jsforce.Connection({
-      instanceUrl: tokenData.instance_url,
-      accessToken: tokenData.access_token,
-      version: '59.0'
-    });
-
-    return conn;
-  } catch (err: unknown) {
-    console.warn('[SF_CLIENT_CRED_FAILED] trying Username/Password flow...', err);
+  }
 
     // 3. Fallback: Username/Password Flow (Most reliable for backend services)
     const username = process.env.SALESFORCE_USERNAME;
@@ -81,7 +87,7 @@ export async function getSalesforceConnection() {
 
     throw new Error('All Salesforce connection methods failed. Please check CLIENT_ID/SECRET or USERNAME/PASSWORD in Vercel.');
   }
-}
+
 
 /**
  * Syncs a timesheet entry to Salesforce
