@@ -14,7 +14,7 @@ export const fadeInUp: Variants = {
   }
 };
 
-export const staggerContainer = {
+export const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -25,7 +25,7 @@ export const staggerContainer = {
   }
 };
 
-export const scaleIn = {
+export const scaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.95 },
   visible: { 
     opacity: 1, 
@@ -34,7 +34,7 @@ export const scaleIn = {
   }
 };
 
-export const slideInRight = {
+export const slideInRight: Variants = {
   hidden: { x: 20, opacity: 0 },
   visible: { 
     x: 0, 
