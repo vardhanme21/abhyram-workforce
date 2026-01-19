@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Flame, Trophy, Star } from "lucide-react"
+import { motion } from "framer-motion"
+import { Flame, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
@@ -14,10 +14,29 @@ type GameStats = {
     badge?: string;
 }
 
+type Particle = {
+    x: number;
+    duration: number;
+    delay: number;
+    width: number;
+    height: number;
+}
+
 export function StreakCounter() {
     const [stats, setStats] = React.useState<GameStats | null>(null)
     const [loading, setLoading] = React.useState(true)
     const prevLevelRef = React.useRef(0)
+    const [particles, setParticles] = React.useState<Particle[]>([])
+
+    React.useEffect(() => {
+        setParticles([...Array(5)].map(() => ({
+            x: Math.random() * 40,
+            duration: 2 + Math.random(),
+            delay: Math.random() * 2,
+            width: Math.random() * 20 + 10,
+            height: Math.random() * 20 + 10
+        })))
+    }, [])
 
     React.useEffect(() => {
         fetch('/api/gamification')
@@ -44,29 +63,28 @@ export function StreakCounter() {
     const progress = (stats.xp / stats.nextLevelXp) * 100;
 
     return (
-    return (
         <div className="flex items-center gap-4 bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-full px-4 py-2 relative overflow-hidden group">
             {/* Particle Effect Background for High Streak */}
             {stats.streak > 3 && (
                  <div className="absolute inset-0 pointer-events-none opacity-20">
-                     {[...Array(5)].map((_, i) => (
+                     {particles.map((p, i) => (
                          <motion.div 
                             key={i}
                             className="absolute bg-orange-500 rounded-full blur-md"
                             initial={{ x: "10%", y: "100%", opacity: 0, scale: 0.5 }}
                             animate={{ 
-                                x: [null, `${Math.random() * 40}px`], 
+                                x: [null, `${p.x}px`], 
                                 y: [null, "-100%"], 
                                 opacity: [0, 1, 0],
                                 scale: [0.5, 1.5, 0.5]
                             }}
                             transition={{ 
-                                duration: 2 + Math.random(), 
+                                duration: p.duration, 
                                 repeat: Infinity, 
-                                delay: Math.random() * 2,
+                                delay: p.delay,
                                 ease: "easeOut" 
                             }}
-                            style={{ width: Math.random() * 20 + 10, height: Math.random() * 20 + 10 }}
+                            style={{ width: p.width, height: p.height }}
                          />
                      ))}
                  </div>
@@ -112,6 +130,5 @@ export function StreakCounter() {
                  )}
             </div>
         </div>
-    )
     )
 }
