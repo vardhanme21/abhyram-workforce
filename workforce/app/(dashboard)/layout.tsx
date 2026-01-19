@@ -3,6 +3,7 @@
 import { AppSidebar } from "@/components/layout/AppSidebar"
 import { Toaster } from "sonner"
 import { MotionDiv } from "@/components/ui/MotionPrimitives"
+import { StreakCounter } from "@/components/gamification/StreakCounter"
 
 export default function DashboardLayout({
   children,
@@ -20,6 +21,11 @@ export default function DashboardLayout({
       <Toaster position="top-right" richColors theme="system" />
       
       <AppSidebar />
+
+      {/* Top Bar for Gamification */}
+      <div className="fixed top-4 right-4 z-50 md:right-8">
+          <StreakCounter />
+      </div>
 
       {/* Main Content Area */}
       <MotionDiv 
