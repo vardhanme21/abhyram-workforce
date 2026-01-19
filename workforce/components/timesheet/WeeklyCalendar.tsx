@@ -9,7 +9,8 @@ import { MotionDiv, MotionCard } from "@/components/ui/MotionPrimitives"
 import { Button } from "@/components/ui/Button"
 import { EntryCell } from "./EntryCell"
 import { StatusBadge } from "./StatusBadge"
-import { Plus, Info, Trash2, ChevronLeft, ChevronRight, Save, Send } from "lucide-react"
+import { SmartFill } from "./SmartFill"
+import { Plus, Trash2, ChevronLeft, ChevronRight, Save, Send } from "lucide-react"
 import { toast } from "sonner"
 
 // Mock Data Types
@@ -222,14 +223,24 @@ export function WeeklyCalendar() {
   const totalHours = entries.reduce((sum, e) => sum + e.hours, 0)
 
 
-  // Intelligence Mock
-  const [showSuggestion, setShowSuggestion] = React.useState(true)
 
-  const handleApplySuggestion = () => {
-    if (allProjects.length > 0) {
-      setHours(allProjects[0].id, 0, 8.0)
-      setShowSuggestion(false)
-    }
+  const handleSmartApply = (projectId: string, hours: number) => {
+      // 1. Ensure project is visible
+      if (!visibleProjectIds.includes(projectId)) {
+          setVisibleProjectIds(prev => [...prev, projectId]);
+      }
+      
+      // 2. Determine target date (Today)
+      const todayStr = format(new Date(), "yyyy-MM-dd");
+      
+      // 3. Update entry
+      setEntries(prev => {
+          const existing = prev.find(e => e.projectId === projectId && e.date === todayStr);
+          if (existing) {
+             return prev.map(e => e.id === existing.id ? { ...e, hours } : e);
+          }
+          return [...prev, { id: Math.random().toString(), projectId, date: todayStr, hours }];
+      });
   }
 
   if (loading) {
@@ -245,23 +256,7 @@ export function WeeklyCalendar() {
 
   return (
     <div className="space-y-6">
-    {showSuggestion && (
-        <MotionDiv className="mb-6 bg-indigo-900/20 backdrop-blur-md border border-indigo-500/30 rounded-2xl p-4 flex items-start sm:items-center justify-between gap-4 shadow-lg shadow-indigo-900/20">
-            <div className="flex items-start sm:items-center gap-4">
-                <div className="bg-gradient-to-br from-indigo-500 to-violet-500 p-2.5 rounded-xl shadow-lg shadow-indigo-500/20 hidden sm:block">
-                    <Info className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                    <h4 className="text-sm font-bold text-white">Smart Suggestion</h4>
-                    <p className="text-sm text-indigo-200 mt-0.5">Based on your history, you usually work <span className="font-semibold text-indigo-400">8.0h</span> on <strong>Client Portal</strong> on Mondays.</p>
-                </div>
-            </div>
-            <div className="flex gap-2">
-                <Button size="sm" variant="ghost" className="h-9 text-indigo-300 hover:text-white hover:bg-white/10" onClick={() => setShowSuggestion(false)}>Dismiss</Button>
-                <Button size="sm" className="h-9 bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-none transition-all hover:scale-105" onClick={handleApplySuggestion}>Apply</Button>
-            </div>
-        </MotionDiv>
-    )}
+    <SmartFill onApply={handleSmartApply} />
 
     <MotionCard delay={0.1} className="overflow-visible border-white/10 bg-slate-900/40">
       <CardHeader className="flex flex-row items-center justify-between pb-8 pt-8 px-8 border-b border-white/5">
