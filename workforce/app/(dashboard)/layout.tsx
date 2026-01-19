@@ -14,16 +14,18 @@ export default function DashboardLayout({
 }) {
   const { data: session } = useSession()
   return (
-    <div className="min-h-screen bg-primary-50">
-      <Toaster position="top-right" richColors />
+    <div className="min-h-screen">
+      <Toaster position="top-right" richColors theme="system" />
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full border-b border-white/20 bg-white/60 backdrop-blur-xl transition-all">
         <div className="container flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <Logo className="h-8 w-8 text-primary-500" />
-              <span className="text-lg font-bold text-primary-700 hidden md:inline-block">
-                Abhyram IT
+            <Link href="/dashboard" className="flex items-center gap-2 group">
+              <div className="bg-gradient-to-tr from-indigo-600 to-violet-600 p-1.5 rounded-lg shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform duration-300">
+                  <Logo className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600 hidden md:inline-block tracking-tight">
+                Abhyram<span className="font-light text-slate-400">IT</span>
               </span>
             </Link>
             
