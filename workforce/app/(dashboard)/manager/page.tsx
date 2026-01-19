@@ -1,3 +1,5 @@
+"use client"
+
 import { TeamCard } from "@/components/manager/TeamCard"
 import { Button } from "@/components/ui/Button"
 import { Filter, BarChart3, Users } from "lucide-react"
