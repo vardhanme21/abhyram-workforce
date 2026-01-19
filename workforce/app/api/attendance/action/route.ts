@@ -34,7 +34,6 @@ export async function POST(req: Request) {
     }
 
     if (action === 'START') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await conn.sobject('Attendance_Log__c').create({
             Employee_Ref__c: userId,
             Login_Time__c: new Date().toISOString(), // JSForce handles Date conversion

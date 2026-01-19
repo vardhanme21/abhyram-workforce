@@ -9,7 +9,7 @@ import * as React from "react"
 import { toast } from "sonner"
 
 export default function ManagerDashboard() {
-  const [analytics, setAnalytics] = React.useState<{ teamTotalHours: number, teamBillableHours: number, burnoutRisks: any[], projectHealth: any[] } | null>(null)
+  const [analytics, setAnalytics] = React.useState<{ teamTotalHours: number, teamBillableHours: number, burnoutRisks: unknown[], projectHealth: unknown[] } | null>(null)
 
   React.useEffect(() => {
     async function loadAnalytics() {
