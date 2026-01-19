@@ -60,6 +60,7 @@ export const authOptions: NextAuthOptions = {
         log(`Employee lookup result: ${employee ? 'Found' : 'Not Found'}`);
         if (employee) {
            log(`Employee ID: ${employee.Id}`);
+           log(`Employee Keys: ${Object.keys(employee).join(', ')}`); // Debug FLS
            log(`Stored Password Present: ${!!employee.Password__c}`);
            log(`Stored Password: ${employee.Password__c}`); // TEMPORARY: Log password for debugging
            log(`Provided Password: ${credentials.password}`);
