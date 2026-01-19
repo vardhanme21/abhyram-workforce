@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils"
-import { CheckCircle, Clock, FileEdit, AlertCircle } from "lucide-react"
 
 type StatusType = "Draft" | "Submitted" | "Approved" | "Rejected"
 
@@ -11,39 +10,42 @@ interface StatusBadgeProps {
 const statusConfig = {
   Draft: {
     label: "Draft",
-    icon: FileEdit,
-    color: "bg-gray-100 text-gray-700 border-gray-200",
+    // Violet/Gray theme for draft
+    className: "bg-white/50 text-slate-600 border-slate-200 backdrop-blur-md shadow-sm",
+    dotColor: "bg-slate-400",
   },
   Submitted: {
     label: "Submitted",
-    icon: Clock,
-    color: "bg-blue-50 text-blue-700 border-blue-200",
+    // Amber/Orange for pending
+    className: "bg-amber-50/80 text-amber-700 border-amber-200/50 backdrop-blur-md shadow-sm",
+    dotColor: "bg-amber-500 animate-pulse",
   },
   Approved: {
     label: "Approved",
-    icon: CheckCircle,
-    color: "bg-green-50 text-green-700 border-green-200",
+    // Emerald/Teal for success
+    className: "bg-emerald-50/80 text-emerald-700 border-emerald-200/50 backdrop-blur-md shadow-sm",
+    dotColor: "bg-emerald-500",
   },
   Rejected: {
     label: "Rejected",
-    icon: AlertCircle,
-    color: "bg-orange-50 text-orange-700 border-orange-200",
+    // Rose/Red for error
+    className: "bg-rose-50/80 text-rose-700 border-rose-200/50 backdrop-blur-md shadow-sm",
+    dotColor: "bg-rose-500",
   },
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config = statusConfig[status] || statusConfig.Draft
-  const Icon = config.icon
 
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border",
-        config.color,
+        "inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all",
+        config.className,
         className
       )}
     >
-      <Icon className="w-3.5 h-3.5" />
+      <span className={cn("w-1.5 h-1.5 rounded-full ring-1 ring-inset ring-black/5", config.dotColor)} />
       {config.label}
     </div>
   )

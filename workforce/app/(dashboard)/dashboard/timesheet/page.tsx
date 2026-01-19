@@ -5,10 +5,10 @@ export default function DashboardPage() {
     <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-700 to-accent-600">
-            Good Morning, Jyoshi
+          <h1 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-900 via-violet-800 to-indigo-900 animate-gradient-x pb-1">
+            Timesheet
           </h1>
-          <p className="text-gray-500">Here&apos;s your workforce summary for this week.</p>
+          <p className="text-gray-500 font-medium">Track your weekly hours and project allocation.</p>
         </div>
         <div className="flex gap-3">
           {/* Actions like Export or New Request can go here */}

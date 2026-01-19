@@ -42,9 +42,9 @@ export function EntryCell({ value, onChangeValue, isReadOnly, highlight, classNa
 
   return (
     <div className={cn(
-      "relative w-full h-full flex items-center justify-center p-1 transition-colors",
-      isFocused ? "bg-accent-50 z-10" : "bg-transparent",
-      highlight && !isFocused && "bg-teal-50/50"
+      "relative w-full h-full flex items-center justify-center transition-all duration-200",
+      isFocused ? "bg-white shadow-sm z-10 scale-[1.02] rounded-md ring-1 ring-primary-100" : "bg-transparent",
+      highlight && !isFocused && "bg-primary-50/50"
     )}>
       <input
         type="text"
@@ -59,10 +59,12 @@ export function EntryCell({ value, onChangeValue, isReadOnly, highlight, classNa
         onKeyDown={handleKeyDown}
         readOnly={isReadOnly}
         className={cn(
-            "w-full h-full text-center bg-transparent focus:outline-none font-medium text-sm rounded-md transition-all",
-            isFocused ? "ring-2 ring-accent-400" : "hover:bg-gray-50",
-            !isFocused && !internalValue && "placeholder:text-gray-300",
-            internalValue && parseFloat(internalValue) > 8 && "text-orange-600 font-bold",
+            "w-full h-full text-center bg-transparent focus:outline-none font-medium text-sm transition-colors",
+            // Typography
+            internalValue && parseFloat(internalValue) > 0 ? "text-gray-900" : "text-gray-400",
+            // Conditional Colors
+            isFocused && "text-primary-700",
+            internalValue && parseFloat(internalValue) > 8 && "text-amber-600 font-bold",
             className
         )}
         placeholder="-"
