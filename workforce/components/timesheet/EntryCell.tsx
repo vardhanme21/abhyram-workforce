@@ -43,8 +43,8 @@ export function EntryCell({ value, onChangeValue, isReadOnly, highlight, classNa
   return (
     <div className={cn(
       "relative w-full h-full flex items-center justify-center transition-all duration-200",
-      isFocused ? "bg-white shadow-sm z-10 scale-[1.02] rounded-md ring-1 ring-primary-100" : "bg-transparent",
-      highlight && !isFocused && "bg-primary-50/50"
+      isFocused ? "bg-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)] z-10 scale-[1.05] rounded-lg ring-1 ring-indigo-400/50" : "bg-transparent",
+      highlight && !isFocused && "bg-indigo-500/5"
     )}>
       <input
         type="text"
@@ -61,10 +61,10 @@ export function EntryCell({ value, onChangeValue, isReadOnly, highlight, classNa
         className={cn(
             "w-full h-full text-center bg-transparent focus:outline-none font-medium text-sm transition-colors",
             // Typography
-            internalValue && parseFloat(internalValue) > 0 ? "text-gray-900" : "text-gray-400",
+            internalValue && parseFloat(internalValue) > 0 ? "text-white font-bold" : "text-slate-600",
             // Conditional Colors
-            isFocused && "text-primary-700",
-            internalValue && parseFloat(internalValue) > 8 && "text-amber-600 font-bold",
+            isFocused && "text-indigo-300",
+            internalValue && parseFloat(internalValue) > 8 && "text-amber-400 font-black drop-shadow-sm",
             className
         )}
         placeholder="-"

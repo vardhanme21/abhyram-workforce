@@ -51,11 +51,15 @@ export const MotionCard = ({ className, children, delay = 0, ...props }: MotionC
   </motion.div>
 );
 
-export const MotionHeader = ({ className, children, ...props }: HTMLMotionProps<"header">) => (
+interface MotionHeaderProps extends HTMLMotionProps<"header"> {
+  delay?: number;
+}
+
+export const MotionHeader = ({ className, children, delay = 0, ...props }: MotionHeaderProps) => (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+      transition={{ delay, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
       className={className}
       {...props}
     >

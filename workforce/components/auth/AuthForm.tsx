@@ -90,14 +90,16 @@ export function AuthForm({ defaultMode = "login" }: AuthFormProps) {
   }
 
   return (
-    <div className={`w-full ${mode === 'signup' ? 'max-w-4xl' : 'max-w-md'} mx-auto p-6 transition-all duration-500`}>
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-        <div className="p-8">
+    <div className={`w-full ${mode === 'signup' ? 'max-w-4xl' : 'max-w-md'} mx-auto transition-all duration-500`}>
+      <div className="bg-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden relative group">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 pointer-events-none" />
+        
+        <div className="p-8 relative z-10">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-accent-600 mb-2">
+            <h1 className="text-3xl font-black text-white mb-2 tracking-tight">
               {mode === "login" ? "Welcome Back" : "Create Account"}
             </h1>
-            <p className="text-gray-500 text-sm">
+            <p className="text-indigo-200 text-sm font-medium">
               {mode === "login" 
                 ? "Enter your credentials to access the workspace" 
                 : "Join the workforce management platform"}
@@ -112,23 +114,24 @@ export function AuthForm({ defaultMode = "login" }: AuthFormProps) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
                   className="grid grid-cols-1 md:grid-cols-2 gap-6"
                 >
                   {/* Left Column */}
                   <div className="space-y-4">
                      <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input id="name" placeholder="John Doe" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} required />
+                      <Label htmlFor="name" className="text-indigo-100">Full Name</Label>
+                      <Input id="name" className="bg-white/10 border-white/20 text-white placeholder:text-indigo-200/50 focus:bg-white/20" placeholder="John Doe" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} required />
                     </div>
                      <div className="space-y-2">
-                      <Label htmlFor="employeeId">Employee Name (ID)</Label>
-                      <Input id="employeeId" placeholder="EMP-001" value={formData.employeeId} onChange={(e) => handleChange('employeeId', e.target.value)} />
+                      <Label htmlFor="employeeId" className="text-indigo-100">Employee Name (ID)</Label>
+                      <Input id="employeeId" className="bg-white/10 border-white/20 text-white placeholder:text-indigo-200/50 focus:bg-white/20" placeholder="EMP-001" value={formData.employeeId} onChange={(e) => handleChange('employeeId', e.target.value)} />
                     </div>
                      <div className="space-y-2">
-                      <Label htmlFor="department">Department</Label>
+                      <Label htmlFor="department" className="text-indigo-100">Department</Label>
                       <select 
                         id="department" 
-                        className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
+                        className="flex h-11 w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white/20 transition-all [&>option]:text-black"
                         value={formData.department}
                         onChange={(e) => handleChange('department', e.target.value)}
                       >
@@ -137,10 +140,10 @@ export function AuthForm({ defaultMode = "login" }: AuthFormProps) {
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="status">Status</Label>
+                      <Label htmlFor="status" className="text-indigo-100">Status</Label>
                        <select 
                         id="status" 
-                        className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
+                        className="flex h-11 w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white/20 transition-all [&>option]:text-black"
                         value={formData.status}
                         onChange={(e) => handleChange('status', e.target.value)}
                       >
@@ -148,26 +151,26 @@ export function AuthForm({ defaultMode = "login" }: AuthFormProps) {
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" placeholder="name@company.com" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} required />
+                      <Label htmlFor="email" className="text-indigo-100">Email</Label>
+                      <Input id="email" className="bg-white/10 border-white/20 text-white placeholder:text-indigo-200/50 focus:bg-white/20" type="email" placeholder="name@company.com" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} required />
                     </div>
                   </div>
 
                   {/* Right Column */}
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="manager">Manager</Label>
-                      <Input id="manager" placeholder="Search Employees..." value={formData.manager} onChange={(e) => handleChange('manager', e.target.value)} />
+                      <Label htmlFor="manager" className="text-indigo-100">Manager</Label>
+                      <Input id="manager" className="bg-white/10 border-white/20 text-white placeholder:text-indigo-200/50 focus:bg-white/20" placeholder="Search Employees..." value={formData.manager} onChange={(e) => handleChange('manager', e.target.value)} />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="hireDate">Hire Date</Label>
-                      <Input id="hireDate" type="date" value={formData.hireDate} onChange={(e) => handleChange('hireDate', e.target.value)} />
+                      <Label htmlFor="hireDate" className="text-indigo-100">Hire Date</Label>
+                      <Input id="hireDate" className="bg-white/10 border-white/20 text-white placeholder:text-indigo-200/50 focus:bg-white/20 [color-scheme:dark]" type="date" value={formData.hireDate} onChange={(e) => handleChange('hireDate', e.target.value)} />
                     </div>
                      <div className="space-y-2">
-                      <Label htmlFor="role">Role</Label>
+                      <Label htmlFor="role" className="text-indigo-100">Role</Label>
                       <select 
                         id="role" 
-                        className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
+                        className="flex h-11 w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white/20 transition-all [&>option]:text-black"
                         value={formData.role}
                         onChange={(e) => handleChange('role', e.target.value)}
                       >
@@ -176,19 +179,19 @@ export function AuthForm({ defaultMode = "login" }: AuthFormProps) {
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <Input id="password" type="password" placeholder="••••••••" value={formData.password} onChange={(e) => handleChange('password', e.target.value)} required />
+                      <Label htmlFor="password" className="text-indigo-100">Password</Label>
+                      <Input id="password" className="bg-white/10 border-white/20 text-white placeholder:text-indigo-200/50 focus:bg-white/20" type="password" placeholder="••••••••" value={formData.password} onChange={(e) => handleChange('password', e.target.value)} required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="costRate">Cost Rate</Label>
-                      <Input id="costRate" type="number" placeholder="0.00" value={formData.costRate} onChange={(e) => handleChange('costRate', parseFloat(e.target.value) || 0)} />
+                      <Label htmlFor="costRate" className="text-indigo-100">Cost Rate</Label>
+                      <Input id="costRate" className="bg-white/10 border-white/20 text-white placeholder:text-indigo-200/50 focus:bg-white/20" type="number" placeholder="0.00" value={formData.costRate} onChange={(e) => handleChange('costRate', parseFloat(e.target.value) || 0)} />
                     </div>
                     
                     {/* Owner Field - Read only simulation */}
                     <div className="space-y-2 pt-2">
-                       <Label className="text-xs uppercase text-gray-400">Owner</Label>
-                       <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                          <div className="h-6 w-6 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-xs">A</div>
+                       <Label className="text-xs uppercase text-indigo-300 font-bold tracking-wider">Owner</Label>
+                       <div className="flex items-center gap-2 text-sm font-medium text-indigo-100">
+                          <div className="h-6 w-6 rounded-full bg-indigo-500/30 flex items-center justify-center text-white text-xs border border-indigo-400/50">A</div>
                           Current User
                        </div>
                     </div>
@@ -201,15 +204,16 @@ export function AuthForm({ defaultMode = "login" }: AuthFormProps) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-4"
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
                 >
                    <div className="space-y-2">
-                    <Label htmlFor="email-login">Work Email</Label>
-                    <Input id="email-login" type="email" placeholder="name@company.com" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} required />
+                    <Label htmlFor="email-login" className="text-indigo-100 ml-1">Work Email</Label>
+                    <Input id="email-login" className="bg-white/5 border-white/10 text-white placeholder:text-indigo-200/30 focus:bg-white/10 focus:border-indigo-400 h-12 text-lg transition-all" type="email" placeholder="name@company.com" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} required />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password-login">Password</Label>
-                    <Input id="password-login" type="password" placeholder="••••••••" value={formData.password} onChange={(e) => handleChange('password', e.target.value)} required />
+                    <Label htmlFor="password-login" className="text-indigo-100 ml-1">Password</Label>
+                    <Input id="password-login" className="bg-white/5 border-white/10 text-white placeholder:text-indigo-200/30 focus:bg-white/10 focus:border-indigo-400 h-12 text-lg transition-all" type="password" placeholder="••••••••" value={formData.password} onChange={(e) => handleChange('password', e.target.value)} required />
                   </div>
                 </motion.div>
               )}
@@ -217,31 +221,31 @@ export function AuthForm({ defaultMode = "login" }: AuthFormProps) {
 
             <Button 
               type="submit" 
-              className="w-full h-11 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white transition-all shadow-md hover:shadow-lg mt-6"
+              className="w-full h-12 bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-lg rounded-xl transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 mt-8 border-t border-white/20"
               disabled={loading}
             >
               {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                <Loader2 className="w-5 h-5 animate-spin mr-2" />
               ) : (
                 <span className="flex items-center justify-center">
                   {mode === "login" ? "Sign In" : "Create Account"}
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <ArrowRight className="w-5 h-5 ml-2" />
                 </span>
               )}
             </Button>
           </form>
 
-          <div className="mt-6 flex items-center justify-between">
-            <div className="h-px bg-gray-200 flex-1" />
-            <span className="px-4 text-xs text-gray-400 uppercase font-medium">Or continue with</span>
-            <div className="h-px bg-gray-200 flex-1" />
+          <div className="mt-8 flex items-center justify-between">
+            <div className="h-px bg-white/10 flex-1" />
+            <span className="px-4 text-xs text-indigo-300 uppercase font-bold tracking-wider">Or continue with</span>
+            <div className="h-px bg-white/10 flex-1" />
           </div>
 
           <div className="mt-6">
             <Button
               variant="outline"
               type="button"
-              className="w-full h-11 border-gray-200 bg-white hover:bg-gray-50 text-gray-700"
+              className="w-full h-12 border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium rounded-xl transition-all"
               onClick={() => signIn("salesforce", { callbackUrl: "/dashboard" })}
             >
               <Cloud className="w-5 h-5 mr-2 text-[#00A1E0]" />
@@ -250,12 +254,12 @@ export function AuthForm({ defaultMode = "login" }: AuthFormProps) {
           </div>
         </div>
 
-        <div className="bg-gray-50/50 p-4 text-center border-t border-gray-100">
-          <p className="text-sm text-gray-600">
+        <div className="bg-black/20 p-4 text-center border-t border-white/5 backdrop-blur-sm">
+          <p className="text-sm text-indigo-200 font-medium">
             {mode === "login" ? "Don't have an account?" : "Already have an account?"}
             <button
               onClick={() => setMode(mode === "login" ? "signup" : "login")}
-              className="ml-2 font-semibold text-primary-600 hover:text-primary-700 transition-colors"
+              className="ml-2 font-bold text-white hover:text-indigo-300 transition-colors underline decoration-indigo-500/50 underline-offset-4"
             >
               {mode === "login" ? "Sign up" : "Sign in"}
             </button>

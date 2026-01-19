@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils"
 
 import * as React from "react"
 import { format, addDays, startOfWeek } from "date-fns"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card"
+import { CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card"
+import { MotionDiv, MotionCard } from "@/components/ui/MotionPrimitives"
 import { Button } from "@/components/ui/Button"
 import { EntryCell } from "./EntryCell"
 import { StatusBadge } from "./StatusBadge"
@@ -243,97 +244,98 @@ export function WeeklyCalendar() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
     {showSuggestion && (
-        <div className="mb-6 bg-indigo-50/50 backdrop-blur-sm border border-indigo-100/50 rounded-2xl p-4 flex items-start sm:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500 shadow-sm">
+        <MotionDiv className="mb-6 bg-indigo-900/20 backdrop-blur-md border border-indigo-500/30 rounded-2xl p-4 flex items-start sm:items-center justify-between gap-4 shadow-lg shadow-indigo-900/20">
             <div className="flex items-start sm:items-center gap-4">
-                <div className="bg-gradient-to-br from-indigo-500 to-violet-500 p-2.5 rounded-xl shadow-indigo-200 shadow-lg hidden sm:block">
+                <div className="bg-gradient-to-br from-indigo-500 to-violet-500 p-2.5 rounded-xl shadow-lg shadow-indigo-500/20 hidden sm:block">
                     <Info className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                    <h4 className="text-sm font-bold text-gray-900">Smart Suggestion</h4>
-                    <p className="text-sm text-gray-500 mt-0.5">Based on your history, you usually work <span className="font-semibold text-indigo-600">8.0h</span> on <strong>Client Portal</strong> on Mondays.</p>
+                    <h4 className="text-sm font-bold text-white">Smart Suggestion</h4>
+                    <p className="text-sm text-indigo-200 mt-0.5">Based on your history, you usually work <span className="font-semibold text-indigo-400">8.0h</span> on <strong>Client Portal</strong> on Mondays.</p>
                 </div>
             </div>
             <div className="flex gap-2">
-                <Button size="sm" variant="ghost" className="h-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100/50" onClick={() => setShowSuggestion(false)}>Dismiss</Button>
-                <Button size="sm" className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-200 border-none transition-all hover:scale-105" onClick={handleApplySuggestion}>Apply</Button>
+                <Button size="sm" variant="ghost" className="h-9 text-indigo-300 hover:text-white hover:bg-white/10" onClick={() => setShowSuggestion(false)}>Dismiss</Button>
+                <Button size="sm" className="h-9 bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 border-none transition-all hover:scale-105" onClick={handleApplySuggestion}>Apply</Button>
             </div>
-        </div>
+        </MotionDiv>
     )}
 
-    <Card className="border-none shadow-2xl bg-white/60 backdrop-blur-xl ring-1 ring-white/50 overflow-hidden rounded-3xl">
-      <CardHeader className="flex flex-row items-center justify-between pb-8 pt-8 px-8 border-b border-gray-100/50">
+    <MotionCard delay={0.1} className="overflow-visible border-white/10 bg-slate-900/40">
+      <CardHeader className="flex flex-row items-center justify-between pb-8 pt-8 px-8 border-b border-white/5">
         <div className="space-y-2">
-          <CardTitle className="text-2xl font-bold flex items-center gap-4 text-gray-900">
+          <CardTitle className="text-2xl font-black flex items-center gap-4 text-white tracking-tight">
             Timesheet
             <StatusBadge status={status} />
           </CardTitle>
-          <CardDescription className="flex items-center gap-3 bg-gray-50/50 w-fit p-1 rounded-lg ring-1 ring-gray-100">
-            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md hover:bg-white hover:shadow-sm transition-all" onClick={() => handleNavigateWeek(-1)}><ChevronLeft className="w-4 h-4 text-gray-600" /></Button>
-            <span className="text-sm font-semibold text-gray-700 w-48 text-center">{format(currentWeekStart, "MMM d")} - {format(addDays(currentWeekStart, 6), "MMM d, yyyy")}</span>
-            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md hover:bg-white hover:shadow-sm transition-all" onClick={() => handleNavigateWeek(1)}><ChevronRight className="w-4 h-4 text-gray-600" /></Button>
+          <CardDescription className="flex items-center gap-3 bg-white/5 border border-white/5 w-fit p-1 rounded-lg">
+            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm hover:bg-white/10 hover:text-white text-gray-400 transition-all" onClick={() => handleNavigateWeek(-1)}><ChevronLeft className="w-4 h-4" /></Button>
+            <span className="text-sm font-bold text-indigo-100 w-48 text-center tracking-wide">{format(currentWeekStart, "MMM d")} - {format(addDays(currentWeekStart, 6), "MMM d, yyyy")}</span>
+            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm hover:bg-white/10 hover:text-white text-gray-400 transition-all" onClick={() => handleNavigateWeek(1)}><ChevronRight className="w-4 h-4" /></Button>
           </CardDescription>
         </div>
         <div className="flex items-center gap-6">
            <div className="text-right hidden md:block">
-             <div className="text-xs uppercase tracking-wider font-semibold text-gray-400 mb-1">Total Hours</div>
-             <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
+             <div className="text-xs uppercase tracking-widest font-bold text-slate-500 mb-1">Total Hours</div>
+             <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 drop-shadow-sm">
                 {totalHours}
-                <span className="text-lg font-medium text-gray-300 ml-1">/ 40</span>
+                <span className="text-lg font-medium text-slate-600 ml-1">/ 40</span>
              </div>
            </div>
            <div className="flex gap-3">
-             <Button variant="outline" className="hidden sm:flex border-gray-200 hover:bg-gray-50 text-gray-600" onClick={handleSave} disabled={status !== "Draft"}>
+             <Button variant="outline" className="hidden sm:flex border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 pointer-events-auto" onClick={handleSave} disabled={status !== "Draft"}>
                <Save className="h-4 w-4 mr-2" /> Save Draft
              </Button>
-             <Button onClick={handleSubmit} disabled={status !== "Draft" || totalHours === 0} className="bg-gray-900 hover:bg-black text-white shadow-xl shadow-gray-200 transition-all hover:scale-105 active:scale-95">
+             <Button onClick={handleSubmit} disabled={status !== "Draft" || totalHours === 0} className="bg-white text-slate-950 hover:bg-indigo-50 font-bold shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all hover:scale-105 active:scale-95 pointer-events-auto">
                <Send className="h-4 w-4 mr-2" /> Submit
              </Button>
            </div>
         </div>
       </CardHeader>
 
-      <CardContent className="p-0 overflow-x-auto">
+      <CardContent className="p-0 overflow-x-auto scroller">
         <div className="min-w-[900px]">
           {/* Header Row */}
-          <div className="grid grid-cols-[280px_repeat(7,1fr)_100px] border-b border-gray-100">
-            <div className="p-6 text-xs font-bold uppercase text-gray-400 tracking-wider">Project</div>
+          <div className="grid grid-cols-[280px_repeat(7,1fr)_100px] border-b border-white/5 bg-white/[0.02]">
+            <div className="p-6 text-xs font-bold uppercase text-slate-500 tracking-widest">Project</div>
             {DAYS.map((day, i) => {
                const isToday = format(addDays(currentWeekStart, i), "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
                return (
-                <div key={day} className={cn("py-4 px-2 text-center transition-colors", isToday && "bg-indigo-50/30")}>
-                    <div className={cn("text-xs font-semibold mb-1", isToday ? "text-indigo-600" : "text-gray-400")}>{day}</div>
-                    <div className={cn("text-xl transition-all", isToday ? "font-bold text-indigo-700 scale-110" : "font-light text-gray-600")}>
+                <div key={day} className={cn("py-4 px-2 text-center transition-colors relative group", isToday && "bg-indigo-500/10")}>
+                    {isToday && <div className="absolute top-0 left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_10px_#6366f1]" />}
+                    <div className={cn("text-xs font-bold mb-1 tracking-wider", isToday ? "text-indigo-400" : "text-slate-500")}>{day}</div>
+                    <div className={cn("text-xl transition-all", isToday ? "font-black text-white scale-110" : "font-medium text-slate-400 group-hover:text-slate-200")}>
                     {format(addDays(currentWeekStart, i), "d")}
                     </div>
                 </div>
               );
             })}
-            <div className="p-6 text-center text-xs font-bold uppercase text-gray-400 tracking-wider">
+            <div className="p-6 text-center text-xs font-bold uppercase text-slate-500 tracking-widest">
               Total
             </div>
           </div>
 
           {/* Project Rows */}
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-white/5">
           {projects.map((project) => (
-            <div key={project.id} className="grid grid-cols-[280px_repeat(7,1fr)_100px] hover:bg-gray-50/50 transition-colors group">
+            <div key={project.id} className="grid grid-cols-[280px_repeat(7,1fr)_100px] hover:bg-white/[0.02] transition-colors group">
               <div className="p-4 pl-8 flex items-center gap-4">
-                <div className={`w-2 h-8 rounded-full ${project.color} shadow-sm`} />
+                <div className={`w-1.5 h-8 rounded-full ${project.color} shadow-[0_0_10px_currentColor]`} />
                 <div className="flex-1 min-w-0 py-2">
-                  <div className="font-semibold text-gray-900 truncate leading-tight group-hover:text-indigo-700 transition-colors">{project.name}</div>
-                  <div className="text-xs text-gray-400 font-medium tracking-wide mt-1">{project.code}</div>
+                  <div className="font-bold text-slate-200 truncate leading-tight group-hover:text-indigo-300 transition-colors">{project.name}</div>
+                  <div className="text-xs text-slate-500 font-medium tracking-wide mt-1">{project.code}</div>
                 </div>
                 {project.billable && (
-                   <div className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-100 text-teal-700" title="Billable">
+                   <div className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/20 text-teal-400 border border-teal-500/30" title="Billable">
                      <span className="text-[10px] font-bold">$</span>
                    </div>
                 )}
                 <Button 
                    variant="ghost" 
                    size="icon" 
-                   className="h-8 w-8 text-gray-300 opacity-0 group-hover:opacity-100 hover:text-rose-600 hover:bg-rose-50 transition-all rounded-full ml-auto"
+                   className="h-8 w-8 text-slate-600 opacity-0 group-hover:opacity-100 hover:text-rose-400 hover:bg-rose-500/10 transition-all rounded-full ml-auto"
                    onClick={() => handleRemoveProject(project.id)}
                    disabled={status !== "Draft"}
                 >
@@ -342,7 +344,7 @@ export function WeeklyCalendar() {
               </div>
               
               {DAYS.map((_, i) => (
-                <div key={i} className="h-20 border-l border-dashed border-gray-100 p-1">
+                <div key={i} className="h-20 border-l border-white/5 p-1 relative">
                   <EntryCell 
                     value={getHours(project.id, i)} 
                     onChangeValue={(v) => setHours(project.id, i, v)}
@@ -352,8 +354,8 @@ export function WeeklyCalendar() {
                 </div>
               ))}
 
-              <div className="flex items-center justify-center">
-                 <div className="text-lg font-bold text-gray-700 bg-gray-100/50 px-4 py-1.5 rounded-lg min-w-[3rem] text-center">
+              <div className="flex items-center justify-center border-l border-white/5">
+                 <div className="text-lg font-bold text-slate-300 bg-white/5 px-4 py-1.5 rounded-lg min-w-[3rem] text-center border border-white/5">
                     {Array.from({length: 7}).reduce((sum: number, _, i) => sum + getHours(project.id, i), 0)}
                  </div>
               </div>
@@ -362,14 +364,14 @@ export function WeeklyCalendar() {
           </div>
 
           {/* Add Project Row */}
-          <div className="p-4 pl-8 border-t border-dashed border-gray-200">
+          <div className="p-4 pl-8 border-t border-dashed border-white/10">
             <Button 
               variant="ghost" 
-              className="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50/50 text-sm font-medium transition-all group"
+              className="text-slate-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-all group"
               onClick={handleAddProject}
               disabled={status !== "Draft"}
             >
-              <div className="bg-gray-100 group-hover:bg-indigo-100 text-gray-500 group-hover:text-indigo-600 rounded-full p-1 mr-3 transition-colors">
+              <div className="bg-white/10 group-hover:bg-indigo-500 group-hover:text-white text-slate-400 rounded-full p-1 mr-3 transition-colors">
                   <Plus className="w-4 h-4" />
               </div>
               Add Project Line
@@ -377,30 +379,30 @@ export function WeeklyCalendar() {
           </div>
 
           {/* Daily Totals Footer */}
-          <div className="grid grid-cols-[280px_repeat(7,1fr)_100px] bg-gray-50/30 border-t border-gray-100">
-            <div className="p-6 text-xs font-bold uppercase text-gray-400 text-right pr-6 self-center">
+          <div className="grid grid-cols-[280px_repeat(7,1fr)_100px] bg-white/[0.02] border-t border-white/10">
+            <div className="p-6 text-xs font-bold uppercase text-slate-500 text-right pr-6 self-center tracking-widest">
               Daily Total
             </div>
             {dailyTotals.map((total, i) => (
-              <div key={i} className="p-4 flex items-center justify-center border-l border-transparent">
+              <div key={i} className="p-4 flex items-center justify-center border-l border-white/5">
                   <div className={cn(
                     "font-bold text-sm px-3 py-1 rounded-full transition-all",
-                    total === 0 ? "text-gray-300" : "bg-white shadow-sm ring-1 ring-gray-100 text-gray-700",
-                    total > 10 && "text-amber-600 ring-amber-100 bg-amber-50",
+                    total === 0 ? "text-slate-700" : "bg-white/10 text-white shadow-sm ring-1 ring-white/10",
+                    total > 10 && "text-amber-400 ring-amber-500/30 bg-amber-500/10",
                   )}>
                     {total > 0 ? total + "h" : "-"}
                   </div>
               </div>
             ))}
-            <div className="p-4 flex items-center justify-center">
-               <div className="text-xl font-black text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl shadow-sm ring-1 ring-indigo-100">
+            <div className="p-4 flex items-center justify-center border-l border-white/5">
+               <div className="text-xl font-black text-indigo-400 bg-indigo-500/10 px-4 py-2 rounded-xl shadow-[0_0_15px_rgba(99,102,241,0.2)] ring-1 ring-indigo-500/20">
                  {totalHours}
                </div>
             </div>
           </div>
         </div>
       </CardContent>
-    </Card>
+    </MotionCard>
     </div>
   )
 }
