@@ -8,8 +8,16 @@ import { ProjectHealth } from "@/components/analytics/ProjectHealth"
 import * as React from "react"
 import { toast } from "sonner"
 
+
+type AnalyticsData = {
+    teamTotalHours: number;
+    teamBillableHours: number;
+    burnoutRisks: { name: string; value: number; threshold: number; status: string }[];
+    projectHealth: { projectName: string; usedHours: number; totalBudget: number; percentUsed: number }[];
+}
+
 export default function ManagerDashboard() {
-  const [analytics, setAnalytics] = React.useState<{ teamTotalHours: number, teamBillableHours: number, burnoutRisks: unknown[], projectHealth: unknown[] } | null>(null)
+  const [analytics, setAnalytics] = React.useState<AnalyticsData | null>(null)
 
   React.useEffect(() => {
     async function loadAnalytics() {
