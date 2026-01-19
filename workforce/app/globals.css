@@ -59,17 +59,7 @@
 }
 
 @layer utilities {
-  .glass-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
-  }
-
-  .glass-card-dark {
-    @apply bg-slate-900/70 backdrop-blur-xl border border-white/10 shadow-xl text-white;
-  }
-
-  .shadow-card-hover {
-    @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-1;
-  }
+  /* Custom utilities can be added here */
 }
 
 @keyframes slideIn {
