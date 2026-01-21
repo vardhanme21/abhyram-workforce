@@ -1,6 +1,7 @@
 "use client"
 
 import { AppSidebar } from "@/components/layout/AppSidebar"
+import { MobileNav } from "@/components/layout/MobileNav"
 import { Toaster } from "sonner"
 import { MotionDiv } from "@/components/ui/MotionPrimitives"
 import { StreakCounter } from "@/components/gamification/StreakCounter"
@@ -21,6 +22,7 @@ export default function DashboardLayout({
       <Toaster position="top-right" richColors theme="system" />
       
       <AppSidebar />
+      <MobileNav />
 
       {/* Top Bar for Gamification */}
       <div className="fixed top-4 right-4 z-50 md:right-8">
@@ -29,7 +31,7 @@ export default function DashboardLayout({
 
       {/* Main Content Area */}
       <MotionDiv 
-        className="relative z-10 md:pl-[320px] pt-20 md:pt-8 pr-4 md:pr-8 min-h-screen flex flex-col"
+        className="relative z-10 md:pl-[320px] pt-8 pr-4 pl-4 md:pr-8 pb-24 md:pb-8 min-h-screen flex flex-col"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.2 }}

@@ -10,13 +10,11 @@ import {
   Briefcase, 
   Users, 
   BarChart, 
-  LogOut, 
-  Menu
+  LogOut
 } from "lucide-react"
 import { Logo } from "@/components/Logo"
 import { Button } from "@/components/ui/Button"
 import { useSession, signOut } from "next-auth/react"
-import { useState } from "react"
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -29,7 +27,6 @@ const menuItems = [
 export function AppSidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
     <>
@@ -109,12 +106,7 @@ export function AppSidebar() {
       </motion.aside>
 
       {/* Mobile Header (replaces sidebar on small screens) */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-slate-950/80 backdrop-blur-xl border-b border-white/10 z-50 flex items-center justify-between px-4">
-          <Logo className="h-6 w-6 text-white" />
-          <Button variant="ghost" size="icon" className="text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-              <Menu className="w-6 h-6" />
-          </Button>
-      </div>
+
       
       {/* Mobile Menu Overlay could go here */}
     </>
